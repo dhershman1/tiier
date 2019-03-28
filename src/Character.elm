@@ -1,7 +1,7 @@
-module Character exposing (Model)
+module Character exposing (Character)
 
-import Gear
-import Skills
+import Gear exposing (Gear)
+import Skills exposing (Skills)
 
 
 type alias ElResist =
@@ -25,11 +25,11 @@ type alias Stats =
     }
 
 
-type alias Model =
+type alias Character =
     { name : String
     , level : Int
     , exp : Float
-    , skills : Skills.Model
+    , skills : Skills
     , stats : Stats
-    , equipment : Gear.Model
+    , equipment : Gear
     }

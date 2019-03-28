@@ -1,4 +1,4 @@
-module Gear exposing (Accessory, Equipment, Model)
+module Gear exposing (Accessory, Equipment, Gear)
 
 -- This piece should handle all the buffs and boosts given with gear
 -- Needs a magical property bonus when we decide to add that
@@ -21,7 +21,7 @@ type alias Accessory =
     }
 
 
-type alias Model =
+type alias Gear =
     { head : Equipment
     , chest : Equipment
     , hands : Equipment

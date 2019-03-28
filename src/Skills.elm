@@ -1,7 +1,7 @@
-module Skills exposing (Model)
+module Skills exposing (Skills)
 
 
-type alias Model =
+type alias Skills =
     { herbalore : Int
     , alchemy : Int
     , enchanting : Int
