@@ -1,0 +1,38 @@
+{
+  "name": "Vlad",
+  "level": 23,
+  "exp": 7233.2,
+  "skills": {
+    "herbalore": 1,
+    "alchemy": 13,
+    "enchanting": 4,
+    "crafting": 27,
+    "smithing": 25,
+    "charisma": 3
+  },
+  "stats": {
+    "health": 792,
+    "damage": 77,
+    "dmgMultiplier": 3.26,
+    "criticalChance": 5,
+    "criticalMulti": 10,
+    "armor": 67,
+    "cooldownReduce": 10,
+    "hitChance": 79.82,
+    "elementalResist": {
+      "fire": 14,
+      "frost": 14,
+      "earth": 14,
+      "electric": 14
+    }
+  },
+  "equipment": {
+    "head": {},
+    "chest": {},
+    "hands": {},
+    "feet": {},
+    "neck": {},
+    "leftFinger": {},
+    "rightFinger": {}
+  }
+}

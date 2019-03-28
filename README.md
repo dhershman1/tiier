@@ -11,7 +11,7 @@ The basics of story spark in a tid bit of lore:
 
 > Long ago in a plane of existence (now called Tiier) there was no ideology of "right and wrong", the underworld hells and the overworld heavens co existed peacefully aside from the occasional border skrimish.
 
-> Humanity was born from the nothingness, on a outer sector of the other two (think of a triangle). Humanity grew, created magic amongst other things but most of all it became a _presence_ amongst the sectors. It was around this time that humanity was noticed by the other two sectors of existence, for fear of balance the heavens attempted to rule, and control the plane of humanity.
+> Humanity was born from the dark nothingness, on a outer sector of the other two (think of a triangle). Humanity grew, created magic amongst other things but most of all it became a _presence_ amongst the sectors. It was around this time that humanity was noticed by the other two sectors of existence, for fear of balance the heavens attempted to rule, and control the plane of humanity.
 
 > This however, did not go unnoticed by the underworlds hells. Which was what caused the tipping point to start a new, more violent war. The heavens and humanity both waged a war against the hells for several years. Fed up with the iron fist, and strict rule the heavens held in place over humanity, they soon declared war against their would be gods. Thus the war of existance had begun.
 
