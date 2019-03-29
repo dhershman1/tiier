@@ -1,6 +1,7 @@
 module Model exposing (Model, State(..))
 
 import Character exposing (Character)
+import Map.Grid exposing (Grid)
 
 
 type State
@@ -20,4 +21,6 @@ type alias Model =
     , moveUp : Bool
     , state : State
     , char : Character
+    , position : ( Int, Float )
+    , grid : Grid
     }

@@ -1,7 +1,6 @@
 module Character exposing (Character)
 
 import Gear exposing (Gear)
-import Skills exposing (Skills)
 
 
 type alias ElResist =
@@ -9,6 +8,16 @@ type alias ElResist =
     , frost : Int
     , earth : Int
     , electric : Int
+    }
+
+
+type alias Skills =
+    { herbalore : Int
+    , alchemy : Int
+    , enchanting : Int
+    , crafting : Int
+    , smithing : Int
+    , charisma : Int
     }
 
 
