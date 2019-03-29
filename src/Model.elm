@@ -1,13 +1,19 @@
-module Model exposing (Model, State(..))
+module Model exposing (Model, State(..), initial)
 
-import Character exposing (Character)
-import Map.Grid exposing (Grid)
+import Grid exposing (Grid)
 
 
 type State
     = Paused
     | Playing
     | Stopped
+
+
+type Difficulty
+    = Easy
+    | Normal
+    | Hard
+    | Hardcore
 
 
 
@@ -20,7 +26,18 @@ type alias Model =
     , moveDown : Bool
     , moveUp : Bool
     , state : State
-    , char : Character
+    , difficulty : Difficulty
     , position : ( Int, Float )
-    , grid : Grid
+    }
+
+
+initial : Model
+initial =
+    { moveLeft = False
+    , moveRight = False
+    , moveDown = False
+    , moveUp = False
+    , state = Stopped
+    , difficulty = Easy
+    , position = ( 0, 0 )
     }

@@ -1,0 +1,9 @@
+{
+  "name": "Test Map",
+  "id": "testmap123",
+  "height": 25,
+  "width": 25,
+  "biome": "forest",
+  "rooms": [],
+  "dungeon": false
+}

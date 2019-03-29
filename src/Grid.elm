@@ -1,4 +1,4 @@
-module Map.Grid exposing (Grid, fromList)
+module Grid exposing (Grid, fromList)
 
 
 type alias Cell a =

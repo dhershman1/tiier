@@ -11,5 +11,6 @@ type Msg
     | MoveRight Bool
     | MoveDown Bool
     | MoveUp Bool
+    | OpenMenu Bool
     | GetViewport Viewport
     | Noop

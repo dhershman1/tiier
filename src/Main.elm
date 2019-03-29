@@ -46,5 +46,8 @@ key on keycode =
         38 ->
             MoveUp on
 
+        27 ->
+            OpenMenu on
+
         _ ->
             Noop
