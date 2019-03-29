@@ -14,3 +14,12 @@ type alias Grid a =
 fromList : a -> List ( Int, Int ) -> Grid a
 fromList value =
     List.map (Cell value)
+
+
+empty : Grid a
+empty =
+    []
+
+
+
+-- Find the center of mass for the map
