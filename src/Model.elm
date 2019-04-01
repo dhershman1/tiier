@@ -3,7 +3,7 @@ module Model exposing (Model, State(..), decodeState, encodeState, initial)
 import Grid exposing (Grid)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Map exposing (Map, Room)
+import Random
 
 
 type State
@@ -82,8 +82,8 @@ type alias Model =
     , state : State
     , difficulty : Difficulty
     , position : ( Int, Float )
-    , currentMap : Map
-    , currentRoom : Room
+    , currentMap : Random.Seed
+    , currentRoom : Random.Seed
     }
 
 
@@ -96,23 +96,29 @@ initial =
     , state = Stopped
     , difficulty = Easy
     , position = ( 0, 0 )
+    , currentMap = ""
+    , currentRoom = ""
     }
 
 
 decode : Decode.Decoder Model
 decode =
-    Decode.map4
-        (\posX posY state difficulty ->
+    Decode.map6
+        (\posX posY state difficulty mapSeed roomSeed ->
             { initial
                 | position = ( posX, posY )
                 , state = state
                 , difficulty = difficulty
+                , currentMap = mapSeed
+                , currentRoom = roomSeed
             }
         )
         (Decode.field "posX" Decode.int)
         (Decode.field "posY" Decode.float)
         (Decode.field "state" (Decode.map decodeState Decode.string))
         (Decode.field "difficulty" (Decode.map decodeDifficulty Decode.string))
+        (Decode.field "currentMap" Decode.string)
+        (Decode.field "currentRoom" Decode.string)
 
 
 encode : Int -> Model -> String
@@ -124,5 +130,7 @@ encode indent model =
             , ( "posY", Encode.float (Tuple.second model.position) )
             , ( "state", Encode.string (encodeState model.state) )
             , ( "difficulty", Encode.string (encodeDifficulty model.difficulty) )
+            , ( "currentMap", Encode.string model.currentMap )
+            , ( "currentRoom", Encode.string model.currentRoom )
             ]
         )
