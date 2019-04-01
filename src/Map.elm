@@ -1,5 +1,11 @@
 module Map exposing (Map, Room)
 
+import Grid exposing (Grid)
+
+
+
+-- Each Map, and Room will be generated based off a Seed that seed will be stored within the model to load a map
+
 
 type alias Room =
     { id : String
@@ -16,6 +22,7 @@ type alias Map =
     , biome : String
     , rooms : List Room
     , dungeon : Bool
+    , grid : Grid
     }
 
 

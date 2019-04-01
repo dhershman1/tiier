@@ -5,6 +5,7 @@ import Browser.Dom exposing (Viewport, getViewport)
 import Browser.Events exposing (onAnimationFrameDelta, onKeyDown, onKeyUp, onResize)
 import Html exposing (..)
 import Html.Events exposing (keyCode)
+import Json.Decode as Decode
 import Messages exposing (Msg(..))
 import Model exposing (Model)
 import Update
@@ -29,6 +30,20 @@ main =
         , view = View.view
         , subscriptions = subscriptions
         }
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.batch
+        [ if model.state == Model.Playing then
+            onAnimationFrameDelta Tick
+
+          else
+            Sub.none
+        , onKeyUp (Decode.map (key False) keyCode)
+        , onKeyDown (Decode.map (key True) keyCode)
+        , onResize Resize
+        ]
 
 
 key : Bool -> Int -> Msg

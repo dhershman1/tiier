@@ -1,6 +1,9 @@
-module Model exposing (Model, State(..), initial)
+module Model exposing (Model, State(..), decodeState, encodeState, initial)
 
 import Grid exposing (Grid)
+import Json.Decode as Decode
+import Json.Encode as Encode
+import Map exposing (Map, Room)
 
 
 type State
@@ -13,7 +16,58 @@ type Difficulty
     = Easy
     | Normal
     | Hard
-    | Hardcore
+
+
+decodeDifficulty : String -> Difficulty
+decodeDifficulty string =
+    case string of
+        "easy" ->
+            Easy
+
+        "normal" ->
+            Normal
+
+        _ ->
+            Hard
+
+
+encodeDifficulty : Difficulty -> String
+encodeDifficulty diff =
+    case diff of
+        Easy ->
+            "easy"
+
+        Normal ->
+            "normal"
+
+        Hard ->
+            "hard"
+
+
+decodeState : String -> State
+decodeState string =
+    case string of
+        "paused" ->
+            Paused
+
+        "playing" ->
+            Playing
+
+        _ ->
+            Stopped
+
+
+encodeState : State -> String
+encodeState state =
+    case state of
+        Paused ->
+            "paused"
+
+        Playing ->
+            "playing"
+
+        Stopped ->
+            "stopped"
 
 
 
@@ -28,6 +82,8 @@ type alias Model =
     , state : State
     , difficulty : Difficulty
     , position : ( Int, Float )
+    , currentMap : Map
+    , currentRoom : Room
     }
 
 
@@ -41,3 +97,32 @@ initial =
     , difficulty = Easy
     , position = ( 0, 0 )
     }
+
+
+decode : Decode.Decoder Model
+decode =
+    Decode.map4
+        (\posX posY state difficulty ->
+            { initial
+                | position = ( posX, posY )
+                , state = state
+                , difficulty = difficulty
+            }
+        )
+        (Decode.field "posX" Decode.int)
+        (Decode.field "posY" Decode.float)
+        (Decode.field "state" (Decode.map decodeState Decode.string))
+        (Decode.field "difficulty" (Decode.map decodeDifficulty Decode.string))
+
+
+encode : Int -> Model -> String
+encode indent model =
+    Encode.encode
+        indent
+        (Encode.object
+            [ ( "posX", Encode.int (Tuple.first model.position) )
+            , ( "posY", Encode.float (Tuple.second model.position) )
+            , ( "state", Encode.string (encodeState model.state) )
+            , ( "difficulty", Encode.string (encodeDifficulty model.difficulty) )
+            ]
+        )
