@@ -27,6 +27,11 @@ type alias Map =
     }
 
 
+
+-- We can make a list of maps (this can be pulled from a DB later on)
+-- This can then be mapped through to generate a list of rooms for each map
+
+
 maps : List Map
 maps =
     [ { name = "Tutorial World"
