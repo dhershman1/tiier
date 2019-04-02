@@ -1,8 +1,11 @@
-module Model exposing (Model, State(..), decodeState, encodeState, initial)
+module Model exposing (Model, State(..), decode, decodeState, encode, encodeState, initial)
 
-import Grid exposing (Grid)
+-- import Grid exposing (Grid)
+
 import Json.Decode as Decode
 import Json.Encode as Encode
+import Keyboard exposing (Key(..))
+import Messages exposing (Msg)
 import Random
 
 
@@ -75,24 +78,20 @@ encodeState state =
 
 
 type alias Model =
-    { moveLeft : Bool
-    , moveRight : Bool
-    , moveDown : Bool
-    , moveUp : Bool
-    , state : State
+    { state : State
+    , pressedKeys : List Key
+    , size : ( Float, Float )
     , difficulty : Difficulty
-    , position : ( Int, Float )
-    , currentMap : Random.Seed
-    , currentRoom : Random.Seed
+    , position : ( Int, Int )
+    , currentMap : String
+    , currentRoom : String
     }
 
 
 initial : Model
 initial =
-    { moveLeft = False
-    , moveRight = False
-    , moveDown = False
-    , moveUp = False
+    { size = ( 0, 0 )
+    , pressedKeys = []
     , state = Stopped
     , difficulty = Easy
     , position = ( 0, 0 )
@@ -114,7 +113,7 @@ decode =
             }
         )
         (Decode.field "posX" Decode.int)
-        (Decode.field "posY" Decode.float)
+        (Decode.field "posY" Decode.int)
         (Decode.field "state" (Decode.map decodeState Decode.string))
         (Decode.field "difficulty" (Decode.map decodeDifficulty Decode.string))
         (Decode.field "currentMap" Decode.string)
@@ -127,7 +126,7 @@ encode indent model =
         indent
         (Encode.object
             [ ( "posX", Encode.int (Tuple.first model.position) )
-            , ( "posY", Encode.float (Tuple.second model.position) )
+            , ( "posY", Encode.int (Tuple.second model.position) )
             , ( "state", Encode.string (encodeState model.state) )
             , ( "difficulty", Encode.string (encodeDifficulty model.difficulty) )
             , ( "currentMap", Encode.string model.currentMap )

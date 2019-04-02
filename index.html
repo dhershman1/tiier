@@ -12,7 +12,16 @@
   <body>
     <div id="app"></div>
     <script>
-      Elm.Main.init({ node: document.getElementById("app") });
+      const initialState = localStorage.getItem('tiier')
+
+      const app = Elm.Main.init({
+        node: document.getElementById("app"),
+        flags: initialState ? JSON.parse(initialState) : ''
+      });
+
+      app.ports.save.subscribe(state => {
+        localStorage.setItem('tiier', state)
+      })
     </script>
   </body>
 </html>

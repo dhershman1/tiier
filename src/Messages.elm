@@ -1,19 +1,18 @@
 module Messages exposing (Msg(..))
 
 import Browser.Dom exposing (Viewport)
+import Keyboard exposing (Key(..))
+import Keyboard.Arrows
 import Random
 
 
 type Msg
     = Start
-    | Pause
+    | Stop
     | Resume
+    | Resize Int Int
+    | KeyMsg Keyboard.Msg
     | LoadRoom Random.Seed
     | LoadMap Random.Seed
-    | MoveLeft Bool
-    | MoveRight Bool
-    | MoveDown Bool
-    | MoveUp Bool
-    | OpenMenu Bool
     | GetViewport Viewport
     | Noop
