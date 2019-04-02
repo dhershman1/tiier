@@ -1,4 +1,4 @@
-module Tiier exposing (State(..))
+module Tiier exposing (main)
 
 import Browser
 import Browser.Dom exposing (Viewport, getViewport)
@@ -10,6 +10,7 @@ import Keyboard exposing (Key(..))
 import Keyboard.Arrows
 import Messages exposing (Msg(..))
 import Model exposing (Model)
+import Task
 import Update
 import View
 
@@ -37,11 +38,6 @@ main =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ if model.state == Model.Playing then
-            onAnimationFrameDelta Tick
-
-          else
-            Sub.none
-        , onResize Resize
+        [ onResize Resize
         , Sub.map KeyMsg Keyboard.subscriptions
         ]

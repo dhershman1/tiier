@@ -14,6 +14,16 @@ saveToStorage model =
     ( model, save (Model.encode 2 model) )
 
 
+
+-- animate : Float -> Model -> Model
+-- animate elapsed model =
+--     model
+--         |> moveTetrimino elapsed
+--         |> rotateTetrimino elapsed
+--         |> dropTetrimino elapsed
+--         |> checkEndGame
+
+
 moving : Model -> Model
 moving model =
     let
@@ -76,5 +86,9 @@ update msg model =
             , Cmd.none
             )
 
+        -- Tick time ->
+        --     model
+        --         |> animate (min time 25)
+        --         |> saveToStorage
         Noop ->
             ( model, Cmd.none )

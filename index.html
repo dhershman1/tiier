@@ -4,17 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/main.css">
     <title>Tiier - RPG Adventure</title>
-
-    <script src="elm.js"></script>
   </head>
   <body>
-    <div id="app"></div>
+		<div id="app"></div>
+		<script src="elm.js"></script>
     <script>
       const initialState = localStorage.getItem('tiier')
 
-      const app = Elm.Main.init({
+      const app = Elm.Tiier.init({
         node: document.getElementById("app"),
         flags: initialState ? JSON.parse(initialState) : ''
       });
