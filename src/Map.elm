@@ -1,4 +1,4 @@
-module Map exposing (Map)
+module Map exposing (Biome, Map)
 
 import Color exposing (Color)
 import Grid exposing (Grid)

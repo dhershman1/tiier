@@ -1,4 +1,4 @@
-module Character exposing (Character)
+module Character exposing (Character, Skills)
 
 import Gear exposing (Gear)
 

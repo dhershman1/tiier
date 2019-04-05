@@ -1,37 +1,75 @@
-module Grid exposing (Cell, Grid, empty, fromList, mapToList)
+module Grid exposing (Cell, Grid, encode, initialize)
 
 -- The Cell type will become what holds all the information of a cell as a user walks among them
 -- For now though, I just want to get the app producing a grid
+-- DamageTypes, Trap, and Event will all be moved out of here eventually
+
+import Json.Decode as Decode
+import Json.Encode as Encode
 
 
-type alias Cell a =
-    { details : a
-    , pos : ( Int, Int )
-    }
+type Event
+    = Event
+        { name : String
+        , description : String
+        , effect : Int -- This will be changing to a standard Type itself
+        }
 
 
-type alias Grid a =
-    List (Cell a)
+type Cell
+    = Cell
+        { trap : Bool
+        , pos : ( Int, Int )
+        }
 
 
-
--- type GridDetails
---     = GridDetails
---         { passable : Bool
---         , trap : Bool
---         }
-
-
-fromList : a -> List ( Int, Int ) -> Grid a
-fromList value =
-    List.map (Cell value)
+type Grid
+    = Grid
+        { width : Int
+        , height : Int
+        , data : List Cell
+        }
 
 
-mapToList : (a -> ( Int, Int ) -> b) -> Grid a -> List b
-mapToList fun =
-    List.map (\{ details, pos } -> fun details pos)
+initialize : Int -> Int -> Grid
+initialize width height =
+    let
+        indicies =
+            List.range 0 (height - 1)
+                |> List.concatMap
+                    (\y ->
+                        List.range 0 (width - 1)
+                            |> List.map (\x -> ( x, y ))
+                    )
+    in
+    let
+        data =
+            indicies
+                |> List.map (\( x, y ) -> Cell { trap = False, pos = ( x, y ) })
+    in
+    Grid { width = width, height = height, data = data }
 
 
-empty : Grid a
-empty =
-    []
+encodeCell : List Cell -> Encode.Value
+encodeCell c =
+    Encode.list
+        (\(Cell { trap, pos }) ->
+            Encode.object
+                [ ( "trap", Encode.bool trap )
+                , ( "posX", Encode.int (Tuple.first pos) )
+                , ( "posY", Encode.int (Tuple.second pos) )
+                ]
+        )
+        c
+
+
+encode : Int -> Grid -> String
+encode indent (Grid { width, height, data }) =
+    Encode.encode
+        indent
+        (Encode.object
+            [ ( "width", Encode.int width )
+            , ( "height", Encode.int height )
+            , ( "data", encodeCell data )
+            ]
+        )
