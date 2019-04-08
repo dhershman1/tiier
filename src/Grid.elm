@@ -1,26 +1,12 @@
-module Grid exposing (Cell, Grid, cellPosToString, cellToRecord, encode, getCells, initialize)
+module Grid exposing (Grid, encode, initialize, isValid, toList)
 
 -- The Cell type will become what holds all the information of a cell as a user walks among them
 -- For now though, I just want to get the app producing a grid
 -- DamageTypes, Trap, and Event will all be moved out of here eventually
 
+import Cell exposing (Cell)
 import Json.Decode as Decode
 import Json.Encode as Encode
-
-
-type Event
-    = Event
-        { name : String
-        , description : String
-        , effect : Int -- This will be changing to a standard Type itself
-        }
-
-
-type Cell
-    = Cell
-        { trap : Bool
-        , pos : ( Int, Int )
-        }
 
 
 type Grid
@@ -31,21 +17,27 @@ type Grid
         }
 
 
-cellToRecord : Cell -> { trap : Bool, pos : ( Int, Int ) }
-cellToRecord (Cell { trap, pos }) =
-    { trap = trap, pos = pos }
+isValid : ( Int, Int ) -> Grid -> Bool
+isValid ( x, y ) (Grid { width, height }) =
+    x >= 0 && x < width && y >= 0 && y < height
 
 
-getCells : Grid -> List Cell
-getCells (Grid { data }) =
+empty : { width : Int, height : Int } -> Grid
+empty { width, height } =
+    Grid
+        { width = width
+        , height = height
+        , data = []
+        }
+
+
+toList : Grid -> List Cell
+toList (Grid { data }) =
     data
 
 
-cellPosToString : Cell -> String
-cellPosToString (Cell { pos }) =
-    "X: " ++ String.fromInt (Tuple.first pos) ++ " Y: " ++ String.fromInt (Tuple.second pos)
-
-
+{-| Generates a new Square Grid
+-}
 initialize : Int -> Int -> Grid
 initialize width height =
     let
@@ -60,22 +52,9 @@ initialize width height =
     let
         data =
             indicies
-                |> List.map (\( x, y ) -> Cell { trap = False, pos = ( x, y ) })
+                |> List.map (\( x, y ) -> Cell.create { char = "-", pos = ( x, y ) })
     in
     Grid { width = width, height = height, data = data }
-
-
-encodeCell : List Cell -> Encode.Value
-encodeCell c =
-    Encode.list
-        (\(Cell { trap, pos }) ->
-            Encode.object
-                [ ( "trap", Encode.bool trap )
-                , ( "posX", Encode.int (Tuple.first pos) )
-                , ( "posY", Encode.int (Tuple.second pos) )
-                ]
-        )
-        c
 
 
 encode : Int -> Grid -> String
@@ -85,6 +64,6 @@ encode indent (Grid { width, height, data }) =
         (Encode.object
             [ ( "width", Encode.int width )
             , ( "height", Encode.int height )
-            , ( "data", encodeCell data )
+            , ( "data", Cell.encode data )
             ]
         )

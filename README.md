@@ -5,6 +5,10 @@ A small game idea written in Elm
 
 Tiier takes place in what could be considered the middle ages, though in this universe it's a bit different.
 
+## Influence
+
+- [Borgue](https://sites.google.com/site/broguegame/)
+
 ## Story Line
 
 The basics of story spark in a tid bit of lore:

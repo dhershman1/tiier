@@ -17,15 +17,27 @@ body {
 main {
   height: 100%;
   display: grid;
-  grid-template-areas: 'header'
-                       'game'
-                       'info';
-  grid-template-rows: auto;
-  grid-template-columns: auto;
+  grid-template-areas: 'header header'
+                       'aside game'
+                       'footer footer';
+  grid-template-rows: 64px 1fr auto;
+  grid-template-columns: 10% 90%;
 }
 
 header {
   grid-area: header;
+  width: 100%;
+}
+
+footer {
+  grid-area: footer;
+  width: 100%;
+  text-align: center;
+  padding: 0.75rem;
+}
+
+.details {
+  grid-area: aside;
   width: 100%;
 }
 
@@ -38,6 +50,8 @@ header {
 
 .grid__cell {
   text-align: center;
-  padding: 0.2rem;
+  /* padding: 0.2rem; */
+  /* min-width: 0.5rem;
+  min-height: 0.5rem; */
   border: 1px solid #FFFFFF;
 }
