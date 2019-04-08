@@ -52,7 +52,7 @@ initialize width height =
     let
         data =
             indicies
-                |> List.map (\( x, y ) -> Cell.create { char = "-", pos = ( x, y ) })
+                |> List.map (\( x, y ) -> Cell.create { char = ".", pos = ( x, y ) })
     in
     Grid { width = width, height = height, data = data }
 
