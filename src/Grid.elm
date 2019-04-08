@@ -1,4 +1,4 @@
-module Grid exposing (Cell, Grid, encode, initialize)
+module Grid exposing (Cell, Grid, cellPosToString, cellToRecord, encode, getCells, initialize)
 
 -- The Cell type will become what holds all the information of a cell as a user walks among them
 -- For now though, I just want to get the app producing a grid
@@ -29,6 +29,21 @@ type Grid
         , height : Int
         , data : List Cell
         }
+
+
+cellToRecord : Cell -> { trap : Bool, pos : ( Int, Int ) }
+cellToRecord (Cell { trap, pos }) =
+    { trap = trap, pos = pos }
+
+
+getCells : Grid -> List Cell
+getCells (Grid { data }) =
+    data
+
+
+cellPosToString : Cell -> String
+cellPosToString (Cell { pos }) =
+    "X: " ++ String.fromInt (Tuple.first pos) ++ " Y: " ++ String.fromInt (Tuple.second pos)
 
 
 initialize : Int -> Int -> Grid
