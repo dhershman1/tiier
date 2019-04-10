@@ -1,22 +1,33 @@
 # Tiier
-A small game idea written in Elm
+A game idea written in [Elm](https://elm-lang.org/)
 
-## Timeline
+## Influence/Credits
 
-Tiier takes place in what could be considered the middle ages, though in this universe it's a bit different.
+- [Brogue](https://sites.google.com/site/broguegame/)
+  - Brogue plays a huge influence in the stylization and choices behind the design to Tiier
 
-## Influence
+## Features (Wishlist)
 
-- [Borgue](https://sites.google.com/site/broguegame/)
+- RPG style gameplay. Level up, train, learn different skills
+- No Class system
+  - In Tiier you don't choose to be an archer, mage, or warrior you start your character at a basic point and build from there. Will you lean towards a certain type? Maybe two? Heck maybe you will choose to be good at everything!
+- **Loot**
+  - I want to pay a good amount of time to the loot system within Tiier, different levels of loot, and lots of items to collect I always enjoyed games with good loot so I hope I can achieve this with Tiier
+- A fun world to explore
+  - Overall my goal is to make dungeons/maps use procedural generation to keep them interesting and make them replayable while you hunt for your glorious **Loot**
+- And many more!
 
-## Story Line
+## Contribution
 
-The basics of story spark in a tid bit of lore:
+Want to help? I am building Tiier purely as a side project for fun, and to have fun with [Elm](https://elm-lang.org/) and try to become better at using it. Feel free to join in on the fun! That could be literally anything!
 
-> Long ago in a plane of existence (now called Tiier) there was no ideology of "right and wrong", the underworld hells and the overworld heavens co existed peacefully aside from the occasional border skrimish.
-
-> Humanity was born from the dark nothingness, on a outer sector of the other two (think of a triangle). Humanity grew, created magic amongst other things but most of all it became a _presence_ amongst the sectors. It was around this time that humanity was noticed by the other two sectors of existence, for fear of balance the heavens attempted to rule, and control the plane of humanity.
-
-> This however, did not go unnoticed by the underworlds hells. Which was what caused the tipping point to start a new, more violent war. The heavens and humanity both waged a war against the hells for several years. Fed up with the iron fist, and strict rule the heavens held in place over humanity, they soon declared war against their would be gods. Thus the war of existance had begun.
-
-> The magics of the 3 sectors was powerful. While each one only pushed more and more, to topple the other. This eventually led to the collapse. Which tore the old world apart, leaving only tiers of existence for each sector. Each plane was a new level of fighting and conquering in an attempt to reach highest peaks of the new world, `Tiier`.
+- Creating Issues to break down larger tasks or even for tasks I haven't even thought of yet!
+  - Ask questions here too! And maybe we will make it a task or feature if your question leads to it!
+- Creating PRs with additions to the game
+- Creating PRs with fixes to my code that you think could be way better
+  - I don't doubt this will be a thing so please explain in your PR why it's better so I can learn!
+- Writing lore and story points!
+  - You can checkout the already in place [lore here](./lore)
+- Spreading the word!
+  - Share the repo, and help me expand it
+- And there are plenty more ways to help out. Just try!
