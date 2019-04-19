@@ -1,5 +1,6 @@
 module Messages exposing (Msg(..))
 
+import Biome exposing (Biome)
 import Browser.Dom exposing (Viewport)
 import Keyboard exposing (Key(..))
 import Keyboard.Arrows
@@ -15,5 +16,6 @@ type Msg
     | KeyMsg Keyboard.Msg
     | LoadRoom Random.Seed
     | LoadMap Random.Seed
+    | LoadBiome Biome
     | GetViewport Viewport
     | Noop

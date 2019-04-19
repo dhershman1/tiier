@@ -31,3 +31,8 @@ Want to help? I am building Tiier purely as a side project for fun, and to have 
 - Spreading the word!
   - Share the repo, and help me expand it
 - And there are plenty more ways to help out. Just try!
+
+## Rando Resources
+
+- https://guide.elm-lang.org/effects/random.html
+- https://package.elm-lang.org/packages/elm/random/latest/Random

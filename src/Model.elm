@@ -2,6 +2,7 @@ module Model exposing (Model, State(..), decode, decodeState, encode, encodeStat
 
 -- import Grid exposing (Grid)
 
+import Biome exposing (Biome)
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Keyboard exposing (Key(..))
@@ -85,6 +86,7 @@ type alias Model =
     , position : ( Int, Int )
     , currentMap : String
     , currentRoom : String
+    , biome : Biome
     }
 
 
@@ -97,25 +99,28 @@ initial =
     , position = ( 0, 0 )
     , currentMap = ""
     , currentRoom = ""
+    , biome = Biome.fromString "Forest"
     }
 
 
 decode : Decode.Decoder Model
 decode =
-    Decode.map6
-        (\posX posY state difficulty mapSeed roomSeed ->
+    Decode.map7
+        (\posX posY state difficulty biome mapSeed roomSeed ->
             { initial
                 | position = ( posX, posY )
                 , state = state
                 , difficulty = difficulty
                 , currentMap = mapSeed
                 , currentRoom = roomSeed
+                , biome = biome
             }
         )
         (Decode.field "posX" Decode.int)
         (Decode.field "posY" Decode.int)
         (Decode.field "state" (Decode.map decodeState Decode.string))
         (Decode.field "difficulty" (Decode.map decodeDifficulty Decode.string))
+        (Decode.field "biome" (Decode.map Biome.fromString Decode.string))
         (Decode.field "currentMap" Decode.string)
         (Decode.field "currentRoom" Decode.string)
 
@@ -131,5 +136,6 @@ encode indent model =
             , ( "difficulty", Encode.string (encodeDifficulty model.difficulty) )
             , ( "currentMap", Encode.string model.currentMap )
             , ( "currentRoom", Encode.string model.currentRoom )
+            , ( "biome", Encode.string (Biome.toString model.biome) )
             ]
         )

@@ -1,5 +1,8 @@
 port module Update exposing (update)
 
+import Biome exposing (Biome)
+import Cell exposing (Cell)
+import Grid exposing (Grid)
 import Keyboard exposing (Key(..))
 import Keyboard.Arrows
 import Messages exposing (..)
@@ -15,6 +18,7 @@ saveToStorage model =
 
 
 
+-- TODO: Working on getting a biome to load over the map and grid
 -- animate : Float -> Model -> Model
 -- animate elapsed model =
 --     model
@@ -80,6 +84,26 @@ update msg model =
             ( { model | currentMap = "test" }
             , Cmd.none
             )
+
+        LoadBiome b ->
+            let
+                colorPallette =
+                    Biome.getColorRanges b
+
+                indicies =
+                    List.range 0 (28 - 1)
+                        |> List.concatMap
+                            (\y ->
+                                List.range 0 (50 - 1)
+                                    |> List.map (\x -> ( x, y ))
+                            )
+            in
+            let
+                data =
+                    indicies
+                        |> List.map (\( x, y ) -> Cell.create { char = ".", passable = True, pos = ( x, y ) })
+            in
+            Grid.create 50 28 cells
 
         KeyMsg key ->
             ( { model | pressedKeys = Keyboard.update key model.pressedKeys }

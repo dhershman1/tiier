@@ -1,4 +1,4 @@
-module Grid exposing (Grid, encode, initialize, isValid, toList)
+module Grid exposing (Grid, empty, encode, initialize, isValid, toList)
 
 -- The Cell type will become what holds all the information of a cell as a user walks among them
 -- For now though, I just want to get the app producing a grid
@@ -22,11 +22,11 @@ isValid ( x, y ) (Grid { width, height }) =
     x >= 0 && x < width && y >= 0 && y < height
 
 
-empty : { width : Int, height : Int } -> Grid
-empty { width, height } =
+empty : Grid
+empty =
     Grid
-        { width = width
-        , height = height
+        { width = 0
+        , height = 0
         , data = []
         }
 
@@ -52,9 +52,14 @@ initialize width height =
     let
         data =
             indicies
-                |> List.map (\( x, y ) -> Cell.create { char = ".", pos = ( x, y ) })
+                |> List.map (\( x, y ) -> Cell.create { char = ".", passable = True, pos = ( x, y ) })
     in
     Grid { width = width, height = height, data = data }
+
+
+create : Int -> Int -> List Cell -> Grid
+create width height cells =
+    Grid { width = width, height = height, data = cells }
 
 
 encode : Int -> Grid -> String

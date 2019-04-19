@@ -1,25 +1,10 @@
-module Map exposing (Biome, Map)
+module Map exposing (Map, empty)
 
+import Biome exposing (Biome)
 import Cell exposing (Cell)
 import Color exposing (Color)
 import Grid exposing (Grid)
 import Random
-
-
-type Biome
-    = Forest
-    | Frozen
-    | Desert
-    | Plains
-    | Cave
-
-
-type Size
-    = Tiny
-    | Small
-    | Normal
-    | Large
-    | Huge
 
 
 type Map
@@ -28,9 +13,20 @@ type Map
         , height : Int
         , width : Int
         , biome : Biome
-        , size : Size
         , grid : Grid
         , dungeon : Bool
+        }
+
+
+empty : Map
+empty =
+    Map
+        { name = ""
+        , height = 0
+        , width = 0
+        , biome = Biome.fromString ""
+        , grid = Grid.empty
+        , dungeon = False
         }
 
 
@@ -39,14 +35,13 @@ createRooms g =
     g
 
 
-create : Int -> Int -> { name : String, biome : Biome, size : Size, dungeon : Bool } -> Map
+create : Int -> Int -> { name : String, biome : String, dungeon : Bool } -> Map
 create w h info =
     Map
         { name = info.name
         , height = h
         , width = w
-        , biome = info.biome
-        , size = info.size
+        , biome = Biome.fromString info.biome
         , grid = Grid.initialize w h
         , dungeon = info.dungeon
         }
