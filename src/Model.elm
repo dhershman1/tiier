@@ -86,6 +86,11 @@ type alias Model =
     , position : ( Int, Int )
     , currentMap : String
     , currentRoom : String
+    , colorSet :
+        { wall : List ( Int, Int )
+        , ground : List ( Int, Int )
+        , foilage : List ( Int, Int )
+        }
     , biome : Biome
     }
 
@@ -99,6 +104,11 @@ initial =
     , position = ( 0, 0 )
     , currentMap = ""
     , currentRoom = ""
+    , colorSet =
+        { wall = []
+        , ground = []
+        , foilage = []
+        }
     , biome = Biome.fromString "Forest"
     }
 

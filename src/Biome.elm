@@ -8,9 +8,9 @@ import Json.Encode as Encode
 
 
 type alias ColorRanges =
-    { wall : List (List Int)
-    , ground : List (List Int)
-    , foilage : List (List Int)
+    { wall : List ( Int, Int )
+    , ground : List ( Int, Int )
+    , foilage : List ( Int, Int )
     }
 
 
@@ -71,33 +71,33 @@ getColorRanges : Biome -> ColorRanges
 getColorRanges b =
     case b of
         Forest ->
-            { wall = [ List.range 199 235, List.range 199 235, List.range 199 235 ]
-            , ground = [ List.range 120 130, List.range 90 105, List.range 60 75 ]
-            , foilage = [ List.range 30 45, List.range 190 205, List.range 60 75 ]
+            { wall = [ ( 199, 235 ), ( 199, 235 ), ( 199, 235 ) ]
+            , ground = [ ( 120, 130 ), ( 90, 105 ), ( 60, 75 ) ]
+            , foilage = [ ( 30, 45 ), ( 190, 205 ), ( 60, 75 ) ]
             }
 
         Frozen ->
-            { wall = [ List.range 199 235, List.range 199 235, List.range 199 235 ]
-            , ground = [ List.range 245 255, List.range 245 255, List.range 245 255 ]
-            , foilage = [ List.range 180 190, List.range 200 215, List.range 245 255 ]
+            { wall = [ ( 199, 235 ), ( 199, 235 ), ( 199, 235 ) ]
+            , ground = [ ( 245, 255 ), ( 245, 255 ), ( 245, 255 ) ]
+            , foilage = [ ( 180, 190 ), ( 200, 215 ), ( 245, 255 ) ]
             }
 
         Desert ->
-            { wall = [ List.range 241 250, List.range 225 250, List.range 175 250 ]
-            , ground = [ List.range 250 255, List.range 240 245, List.range 190 210 ]
-            , foilage = [ List.range 200 210, List.range 160 170, List.range 16 40 ]
+            { wall = [ ( 241, 250 ), ( 225, 250 ), ( 175, 250 ) ]
+            , ground = [ ( 250, 255 ), ( 240, 245 ), ( 190, 210 ) ]
+            , foilage = [ ( 200, 210 ), ( 160, 170 ), ( 16, 40 ) ]
             }
 
         Plains ->
-            { wall = [ List.range 180 205, List.range 240 255, List.range 165 200 ]
-            , ground = [ List.range 50 60, List.range 150 160, List.range 35 40 ]
-            , foilage = [ List.range 80 100, List.range 220 240, List.range 35 45 ]
+            { wall = [ ( 180, 205 ), ( 240, 255 ), ( 165, 200 ) ]
+            , ground = [ ( 50, 60 ), ( 150, 160 ), ( 35, 40 ) ]
+            , foilage = [ ( 80, 100 ), ( 220, 240 ), ( 35, 45 ) ]
             }
 
         Cave ->
-            { wall = [ List.range 199 235, List.range 199 235, List.range 199 235 ]
-            , ground = [ List.range 210 240, List.range 195 210, List.range 235 240 ]
-            , foilage = [ List.range 80 100, List.range 220 240, List.range 35 45 ]
+            { wall = [ ( 199, 235 ), ( 199, 235 ), ( 199, 235 ) ]
+            , ground = [ ( 210, 240 ), ( 195, 210 ), ( 235, 240 ) ]
+            , foilage = [ ( 80, 100 ), ( 220, 240 ), ( 35, 45 ) ]
             }
 
         None ->

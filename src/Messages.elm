@@ -16,6 +16,6 @@ type Msg
     | KeyMsg Keyboard.Msg
     | LoadRoom Random.Seed
     | LoadMap Random.Seed
-    | LoadBiome Biome
+    | SetBiome Biome
     | GetViewport Viewport
     | Noop

@@ -31,11 +31,8 @@ header {
 .grid {
   grid-area: game;
   display: grid;
-  grid-template-rows: repeat(28, 3%);
+  /* grid-template-rows: repeat(28, 2%); */
   grid-template-columns: repeat(50, 2%);
-  grid-gap: auto 0.2rem;
-  /* grid-template-rows: repeat(40, 3%);
-  grid-template-columns: repeat(38, 2%); */
 }
 
 .grid__cell {

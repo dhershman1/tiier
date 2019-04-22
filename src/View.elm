@@ -27,5 +27,5 @@ view model =
     main_ [ class "tiier" ]
         [ header [] [ h1 [] [ text "Tiier" ] ]
         , aside [ class "details" ] [ span [ class "location" ] [ text "Location: " ], span [] [ text "Nowhere" ] ]
-        , div [ class "grid" ] (viewCells (toList (initialize 50 28)))
+        , div [ class "grid" ] (viewCells (toList (initialize 50 40)))
         ]

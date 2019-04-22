@@ -85,25 +85,8 @@ update msg model =
             , Cmd.none
             )
 
-        LoadBiome b ->
-            let
-                colorPallette =
-                    Biome.getColorRanges b
-
-                indicies =
-                    List.range 0 (28 - 1)
-                        |> List.concatMap
-                            (\y ->
-                                List.range 0 (50 - 1)
-                                    |> List.map (\x -> ( x, y ))
-                            )
-            in
-            let
-                data =
-                    indicies
-                        |> List.map (\( x, y ) -> Cell.create { char = ".", passable = True, pos = ( x, y ) })
-            in
-            Grid.create 50 28 cells
+        SetBiome b ->
+            ( { model | biome = b, colorSet = Biome.getColorRanges b }, Cmd.none )
 
         KeyMsg key ->
             ( { model | pressedKeys = Keyboard.update key model.pressedKeys }
