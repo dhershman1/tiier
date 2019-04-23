@@ -1,4 +1,4 @@
-module Biome exposing (Biome, fromString, getColorRanges, toString)
+module Biome exposing (Biome, ColorRanges, fromString, getColorRanges, toString)
 
 {-| Handles Biome information and conversions
 -}

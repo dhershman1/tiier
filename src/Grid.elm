@@ -7,6 +7,7 @@ module Grid exposing (Grid, empty, encode, initialize, isValid, toList)
 import Cell exposing (Cell)
 import Json.Decode as Decode
 import Json.Encode as Encode
+import Random
 
 
 type Grid
