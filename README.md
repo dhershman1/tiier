@@ -36,4 +36,7 @@ Want to help? I am building Tiier purely as a side project for fun, and to have 
 
 - https://guide.elm-lang.org/effects/random.html
 - https://package.elm-lang.org/packages/elm/random/latest/Random
+- https://github.com/rofrol/awesome-elm-gamedev
 - https://github.com/JoelQ/elm-conf-demo
+- https://github.com/ElmLive/random-maps
+  - Not perfect but decent reference (also outdated)
