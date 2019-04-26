@@ -35,21 +35,58 @@ toRecord (Cell { char, color, passable, pos }) =
 
 posToString : Cell -> String
 posToString (Cell { pos }) =
-    "X: " ++ String.fromInt (Tuple.first pos) ++ " Y: " ++ String.fromInt (Tuple.second pos)
+    String.fromInt (Tuple.first pos) ++ ", " ++ String.fromInt (Tuple.second pos)
 
 
-encode : List Cell -> Encode.Value
-encode c =
-    Encode.list
-        (\(Cell { char, passable, pos }) ->
-            Encode.object
-                [ ( "char", Encode.string char )
-                , ( "passable", Encode.bool passable )
-                , ( "posX", Encode.int (Tuple.first pos) )
-                , ( "posY", Encode.int (Tuple.second pos) )
-                ]
-        )
-        c
+posFromString : String -> Maybe ( Int, Int )
+posFromString s =
+    case String.split ", " s of
+        x :: y :: [] ->
+            let
+                newX =
+                    case String.toInt x of
+                        Nothing ->
+                            0
+
+                        Just iX ->
+                            iX
+
+                newY =
+                    case String.toInt y of
+                        Nothing ->
+                            0
+
+                        Just iY ->
+                            iY
+            in
+            Just <| ( newX, newY )
+
+        _ ->
+            Nothing
+
+
+
+-- encode : List Cell -> Encode.Value
+-- encode c =
+--     Encode.list
+--         (\(Cell { char, passable, pos }) ->
+--             Encode.object
+--                 [ ( "char", Encode.string char )
+--                 , ( "passable", Encode.bool passable )
+--                 , ( "posX", Encode.int (Tuple.first pos) )
+--                 , ( "posY", Encode.int (Tuple.second pos) )
+--                 ]
+--         )
+--         c
+
+
+encode : Cell -> Encode.Value
+encode (Cell { char, pos }) =
+    Encode.object
+        [ ( "char", Encode.string char )
+        , ( "posX", Encode.int (Tuple.first pos) )
+        , ( "posY", Encode.int (Tuple.second pos) )
+        ]
 
 
 decode : Decode.Decoder Cell

@@ -5,17 +5,17 @@ import Browser.Dom exposing (Viewport)
 import Keyboard exposing (Key(..))
 import Keyboard.Arrows
 import Random
+import Time exposing (Posix)
 
 
 type Msg
     = Start
     | Stop
     | Resume
-      -- | Tick Float
+    | Tick Float
+    | InitRandom Posix
     | Resize Int Int
     | KeyMsg Keyboard.Msg
-    | LoadRoom Random.Seed
-    | LoadMap Random.Seed
     | SetBiome Biome
     | GetViewport Viewport
     | Noop

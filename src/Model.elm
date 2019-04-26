@@ -6,8 +6,9 @@ import Biome exposing (Biome)
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Keyboard exposing (Key(..))
+import Map exposing (Map)
 import Messages exposing (Msg)
-import Random
+import Random exposing (Generator, Seed)
 
 
 type State
@@ -84,13 +85,8 @@ type alias Model =
     , size : ( Float, Float )
     , difficulty : Difficulty
     , position : ( Int, Int )
-    , currentMap : String
-    , currentRoom : String
-    , colorSet :
-        { wall : List ( Int, Int )
-        , ground : List ( Int, Int )
-        , foilage : List ( Int, Int )
-        }
+    , randomSeed : Seed
+    , map : Map
     , biome : Biome
     }
 
@@ -102,27 +98,20 @@ initial =
     , state = Stopped
     , difficulty = Easy
     , position = ( 0, 0 )
-    , currentMap = ""
-    , currentRoom = ""
-    , colorSet =
-        { wall = []
-        , ground = []
-        , foilage = []
-        }
+    , randomSeed = Random.initialSeed 0
+    , map = Map.empty
     , biome = Biome.fromString "Forest"
     }
 
 
 decode : Decode.Decoder Model
 decode =
-    Decode.map7
-        (\posX posY state difficulty biome mapSeed roomSeed ->
+    Decode.map5
+        (\posX posY state difficulty biome ->
             { initial
                 | position = ( posX, posY )
                 , state = state
                 , difficulty = difficulty
-                , currentMap = mapSeed
-                , currentRoom = roomSeed
                 , biome = biome
             }
         )
@@ -131,8 +120,6 @@ decode =
         (Decode.field "state" (Decode.map decodeState Decode.string))
         (Decode.field "difficulty" (Decode.map decodeDifficulty Decode.string))
         (Decode.field "biome" (Decode.map Biome.fromString Decode.string))
-        (Decode.field "currentMap" Decode.string)
-        (Decode.field "currentRoom" Decode.string)
 
 
 encode : Int -> Model -> String
@@ -144,8 +131,6 @@ encode indent model =
             , ( "posY", Encode.int (Tuple.second model.position) )
             , ( "state", Encode.string (encodeState model.state) )
             , ( "difficulty", Encode.string (encodeDifficulty model.difficulty) )
-            , ( "currentMap", Encode.string model.currentMap )
-            , ( "currentRoom", Encode.string model.currentRoom )
             , ( "biome", Encode.string (Biome.toString model.biome) )
             ]
         )

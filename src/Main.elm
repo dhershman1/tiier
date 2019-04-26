@@ -11,6 +11,7 @@ import Keyboard.Arrows
 import Messages exposing (Msg(..))
 import Model exposing (Model)
 import Task
+import Time
 import Update
 import View
 
@@ -27,7 +28,10 @@ main =
                 ( value
                     |> Decode.decodeValue Model.decode
                     |> Result.withDefault Model.initial
-                , Task.perform GetViewport getViewport
+                , Cmd.batch
+                    [ Task.perform GetViewport getViewport
+                    , Task.perform InitRandom Time.now
+                    ]
                 )
         , update = Update.update
         , view = View.view

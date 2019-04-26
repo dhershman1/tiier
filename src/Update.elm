@@ -2,11 +2,14 @@ port module Update exposing (update)
 
 import Biome exposing (Biome)
 import Cell exposing (Cell)
+import Debug exposing (log)
 import Grid exposing (Grid)
 import Keyboard exposing (Key(..))
 import Keyboard.Arrows
 import Messages exposing (..)
 import Model exposing (..)
+import Random
+import Time
 
 
 port save : String -> Cmd msg
@@ -75,18 +78,22 @@ update msg model =
             , Cmd.none
             )
 
-        LoadRoom seed ->
-            ( { model | currentRoom = "test" }
-            , Cmd.none
-            )
+        Tick _ ->
+            ( model, Cmd.none )
 
-        LoadMap seed ->
-            ( { model | currentMap = "test" }
+        InitRandom now ->
+            let
+                seed =
+                    Random.initialSeed <| log "initial seed" <| Time.posixToMillis now
+            in
+            ( { model
+                | randomSeed = seed
+              }
             , Cmd.none
             )
 
         SetBiome b ->
-            ( { model | biome = b, colorSet = Biome.getColorRanges b }, Cmd.none )
+            ( { model | biome = b }, Cmd.none )
 
         KeyMsg key ->
             ( { model | pressedKeys = Keyboard.update key model.pressedKeys }
