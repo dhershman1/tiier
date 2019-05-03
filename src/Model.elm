@@ -3,10 +3,11 @@ module Model exposing (Model, State(..), decode, decodeState, encode, encodeStat
 -- import Grid exposing (Grid)
 
 import Biome exposing (Biome)
+import Board exposing (Board)
+import Dict exposing (Dict)
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Keyboard exposing (Key(..))
-import Map exposing (Map)
 import Messages exposing (Msg)
 import Random exposing (Generator, Seed)
 
@@ -86,7 +87,8 @@ type alias Model =
     , difficulty : Difficulty
     , position : ( Int, Int )
     , randomSeed : Seed
-    , map : Map
+    , loadedBoards : Dict String Seed
+    , board : Board
     , biome : Biome
     }
 
@@ -99,7 +101,8 @@ initial =
     , difficulty = Easy
     , position = ( 0, 0 )
     , randomSeed = Random.initialSeed 0
-    , map = Map.empty
+    , loadedBoards = Dict.empty
+    , board = Board.empty
     , biome = Biome.fromString "Forest"
     }
 

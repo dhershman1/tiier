@@ -1,8 +1,10 @@
 port module Update exposing (update)
 
 import Biome exposing (Biome)
+import Board exposing (Board)
 import Cell exposing (Cell)
 import Debug exposing (log)
+import Dict exposing (Dict)
 import Grid exposing (Grid)
 import Keyboard exposing (Key(..))
 import Keyboard.Arrows
@@ -80,6 +82,29 @@ update msg model =
 
         Tick _ ->
             ( model, Cmd.none )
+
+        LoadBoard now id ->
+            if Dict.member id model.loadedBoards then
+                let
+                    seed =
+                        Dict.get id model.loadedBoards
+                in
+                ( { model
+                    | loadedBoards = Dict.insert id (Maybe.withDefault (Random.initialSeed 0) seed) model.loadedBoards
+                  }
+                , Cmd.none
+                )
+
+            else
+                let
+                    seed =
+                        Random.initialSeed (Time.posixToMillis now)
+                in
+                ( { model
+                    | loadedBoards = Dict.insert id seed model.loadedBoards
+                  }
+                , Cmd.none
+                )
 
         InitRandom now ->
             let
