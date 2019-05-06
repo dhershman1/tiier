@@ -1,6 +1,8 @@
 
 Note to self:
 
+**Map size**: 50x40
+
 Playing with the Map (now board) in build out a proper grid and playable board
 
 we will need to generate a cell with all the specs and stats we expect, for each bit of the grid.
