@@ -94,7 +94,7 @@ getName (Board { name }) =
 emptyCell : Cell
 emptyCell =
     Cell
-        { char = "."
+        { char = ""
         , passable = False
         , terrain = Abyss
         , pos = ( 0, 0 )
