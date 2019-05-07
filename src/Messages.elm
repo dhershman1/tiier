@@ -14,6 +14,7 @@ type Msg
     | Resume
     | Tick Float
     | InitRandom Posix
+    | TestLoad Posix
     | LoadBoard Posix String
     | Resize Int Int
     | KeyMsg Keyboard.Msg

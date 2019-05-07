@@ -11,6 +11,7 @@ import Keyboard.Arrows
 import Messages exposing (..)
 import Model exposing (..)
 import Random
+import Task
 import Time
 
 
@@ -45,6 +46,11 @@ moving model =
             , Tuple.second model.position + arrows.y
             )
     }
+
+
+getNewTime : Cmd Msg
+getNewTime =
+    Task.perform InitRandom Time.now
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -83,14 +89,22 @@ update msg model =
         Tick _ ->
             ( model, Cmd.none )
 
+        TestLoad now ->
+            let
+                seed =
+                    Random.initialSeed <| log "initial seed" <| Time.posixToMillis now
+            in
+            ( { model | board = Board.generate 50 40 seed }, Cmd.none )
+
         LoadBoard now id ->
             if Dict.member id model.loadedBoards then
                 let
                     seed =
-                        Dict.get id model.loadedBoards
+                        Maybe.withDefault (Random.initialSeed 0) (Dict.get id model.loadedBoards)
                 in
                 ( { model
-                    | loadedBoards = Dict.insert id (Maybe.withDefault (Random.initialSeed 0) seed) model.loadedBoards
+                    | loadedBoards = Dict.insert id seed model.loadedBoards
+                    , board = Board.generate 50 40 seed
                   }
                 , Cmd.none
                 )
@@ -102,6 +116,7 @@ update msg model =
                 in
                 ( { model
                     | loadedBoards = Dict.insert id seed model.loadedBoards
+                    , board = Board.generate 50 40 seed
                   }
                 , Cmd.none
                 )

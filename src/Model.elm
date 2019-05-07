@@ -102,7 +102,7 @@ initial =
     , position = ( 0, 0 )
     , randomSeed = Random.initialSeed 0
     , loadedBoards = Dict.empty
-    , board = Board.empty
+    , board = Board.generate 50 40 (Random.initialSeed 0)
     , biome = Biome.fromString "Forest"
     }
 

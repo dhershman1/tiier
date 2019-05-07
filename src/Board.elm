@@ -1,4 +1,4 @@
-module Board exposing (Board, empty)
+module Board exposing (Board, boardToList, empty, generate)
 
 import Color exposing (Color)
 import Dict exposing (Dict)
@@ -23,7 +23,7 @@ type Terrain
     | Abyss
 
 
-type alias CellRec =
+type alias Cell =
     { char : String
     , passable : Bool
     , terrain : Terrain
@@ -31,26 +31,38 @@ type alias CellRec =
     }
 
 
-type Cell
-    = Cell CellRec
+
+-- type Cell
+--     = Cell CellRec
 
 
-type Board
-    = Board
-        { name : String
-        , biome : String
-        , id : String
-        , grid : Dict String Cell
-        , dungeon : Bool
-        }
+type alias Board =
+    { name : String
+    , biome : String
+    , id : String
+    , grid : Dict String Cell
+    , dungeon : Bool
+    }
 
 
-fakeBoard : { name : String, biome : String, id : String, dungeon : Bool }
+
+-- type Board
+--     = Board
+--         { name : String
+--         , biome : String
+--         , id : String
+--         , grid : Dict String Cell
+--         , dungeon : Bool
+--         }
+
+
+fakeBoard : Board
 fakeBoard =
     { name = "Test Board"
     , id = "test123"
     , biome = "Forest"
     , dungeon = False
+    , grid = Dict.empty
     }
 
 
@@ -86,41 +98,51 @@ posFromString s =
             Nothing
 
 
-getName : Board -> String
-getName (Board { name }) =
-    name
-
-
 emptyCell : Cell
 emptyCell =
-    Cell
-        { char = ""
-        , passable = False
-        , terrain = Abyss
-        , pos = ( 0, 0 )
-        }
+    { char = ""
+    , passable = False
+    , terrain = Abyss
+    , pos = ( 0, 0 )
+    }
 
 
 empty : Board
 empty =
-    Board
-        { name = ""
-        , id = ""
-        , biome = ""
-        , grid = Dict.empty
-        , dungeon = False
-        }
+    { name = ""
+    , id = ""
+    , biome = ""
+    , grid = Dict.empty
+    , dungeon = False
+    }
+
+
+boardToList : Board -> List Cell
+boardToList { grid } =
+    List.map Tuple.second (Dict.toList grid)
 
 
 getTerrain : ( Int, Int ) -> Dict String Cell -> Terrain
 getTerrain pos grid =
     case Maybe.withDefault emptyCell (Dict.get (posToString pos) grid) of
-        Cell { terrain } ->
+        { terrain } ->
             terrain
 
 
+getNeighbors : ( Int, Int ) -> Board -> List Cell
+getNeighbors ( x, y ) { grid } =
+    List.map (\pos -> Maybe.withDefault emptyCell (Dict.get (posToString pos) grid))
+        [ ( x - 3, y )
+        , ( x - 2, y )
+        , ( x - 1, y )
+        , ( x, y + 1 )
+        , ( x, y + 2 )
+        , ( x, y + 3 )
+        ]
+
+
 getNeighborTerrain : ( Int, Int ) -> Board -> List Terrain
-getNeighborTerrain ( x, y ) (Board { grid }) =
+getNeighborTerrain ( x, y ) { grid } =
     List.map (\oldPos -> getTerrain oldPos grid)
         [ ( x - 3, y )
         , ( x - 2, y )
@@ -131,36 +153,105 @@ getNeighborTerrain ( x, y ) (Board { grid }) =
         ]
 
 
+count : List Terrain -> Terrain -> Int
+count terrList t =
+    List.partition (\lt -> lt == t) terrList
+        |> Tuple.first
+        |> List.length
+
+
+getWeight : ( Int, Int ) -> Terrain -> Board -> Float
+getWeight pos t board =
+    let
+        neighborsTerrain =
+            getNeighborTerrain pos board
+
+        matchedNeighbors =
+            count neighborsTerrain t
+    in
+    case matchedNeighbors of
+        6 ->
+            0
+
+        5 ->
+            10
+
+        4 ->
+            20
+
+        3 ->
+            25
+
+        2 ->
+            30
+
+        1 ->
+            35
+
+        _ ->
+            0
+
+
 generateOneOf : ( Int, Int ) -> ( Cell, List Cell )
 generateOneOf pos =
-    ( Cell (CellRec "#" False Wall pos)
-    , [ Cell (CellRec "~" True Water pos)
-      , Cell (CellRec "." True Floor pos)
-      , Cell (CellRec "!" True Forest pos)
-      , Cell (CellRec "=" True TownRoad pos)
-      , Cell (CellRec "." True RoomCore pos)
-      , Cell (CellRec "" False Abyss pos)
+    ( Cell "#" False Wall pos
+    , [ Cell "~" True Water pos
+      , Cell "." True Floor pos
+      , Cell "!" True Forest pos
+      , Cell "=" True TownRoad pos
+      , Cell "." True RoomCore pos
+      , Cell "" False Abyss pos
       ]
     )
 
 
+randoCell : ( Int, Int ) -> Board -> Random.Seed -> ( Cell, Random.Seed )
+randoCell pos board seed =
+    Random.step
+        (Random.weighted
+            ( getWeight pos Wall board, Cell "#" False Wall pos )
+            [ ( getWeight pos Water board, Cell "~" True Water pos )
+            , ( getWeight pos Floor board, Cell "." True Floor pos )
+            , ( getWeight pos Forest board, Cell "!" True Forest pos )
+            , ( getWeight pos TownRoad board, Cell "=" True TownRoad pos )
+            , ( getWeight pos Abyss board, Cell "" False Abyss pos )
+            ]
+        )
+        seed
 
--- validateNeighbors : List Cell -> List Cell -> Neighbor -> ( Cell, List Cell )
--- validateNeighbors possibleTiles possibleNeighbors neighborDirection =
---     let
---         filteredPossibilities =
---             List.filter (\neigh -> List.any (\self -> validJunction neighborDirection self neigh) possibleTiles) possibleNeighbors
---     in
---     case filteredPossibilities of
---         t :: others ->
---             ( t, others )
---         [] ->
---             ( Cell "" True Floor ( 0, 0 ), [] )
+
+generateCell : Int -> Int -> Board -> Random.Seed -> Board
+generateCell x y board seed =
+    let
+        ( nextCell, nextSeed ) =
+            randoCell ( x, y ) board seed
+
+        nextBoard =
+            { board | grid = Dict.insert (posToString ( x, y )) nextCell board.grid }
+    in
+    if x > 0 then
+        generateCell (x - 1) y nextBoard nextSeed
+
+    else
+        nextBoard
+
+
+generateRow : Int -> Int -> Board -> Random.Seed -> Board
+generateRow x y board seed =
+    let
+        nextBoard =
+            generateCell x y board seed
+    in
+    if y > 0 then
+        generateRow x (y - 1) nextBoard (Random.initialSeed y)
+
+    else
+        nextBoard
 
 
 {-| The Board will be pulled from our DB to get its stats like Biome, name, dungeon, etc.
 For now though we can also just fake that. Replace "fakeBoard" with an actual db return
 -}
-generate : Random.Seed -> String -> Board
-generate seed id =
-    empty
+generate : Int -> Int -> Random.Seed -> Board
+generate width height seed =
+    generateRow (width - 1) (height - 1) fakeBoard seed
