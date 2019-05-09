@@ -92,7 +92,7 @@ update msg model =
         TestLoad now ->
             let
                 seed =
-                    Random.initialSeed <| log "initial seed" <| Time.posixToMillis now
+                    Random.initialSeed <| log "load new seed" <| Time.posixToMillis now
             in
             ( { model | board = Board.generate 50 40 seed }, Cmd.none )
 
