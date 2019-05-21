@@ -98,7 +98,7 @@ update msg model =
                 in
                 ( { model
                     | loadedBoards = Dict.insert id seed model.loadedBoards
-                    , board = Board.generate 50 40 seed
+                    , board = Board.generate 50 50 seed
                   }
                 , Cmd.none
                 )
