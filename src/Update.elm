@@ -23,17 +23,6 @@ saveToStorage model =
     ( model, save (Model.encode 2 model) )
 
 
-
--- TODO: Working on getting a biome to load over the map and grid
--- animate : Float -> Model -> Model
--- animate elapsed model =
---     model
---         |> moveTetrimino elapsed
---         |> rotateTetrimino elapsed
---         |> dropTetrimino elapsed
---         |> checkEndGame
-
-
 moving : Model -> Model
 moving model =
     let
@@ -89,13 +78,6 @@ update msg model =
         Tick _ ->
             ( model, Cmd.none )
 
-        TestLoad now ->
-            let
-                seed =
-                    Random.initialSeed <| log "load new seed" <| Time.posixToMillis now
-            in
-            ( { model | board = Board.generate 50 40 seed }, Cmd.none )
-
         LoadBoard now id ->
             if Dict.member id model.loadedBoards then
                 let
@@ -128,6 +110,7 @@ update msg model =
             in
             ( { model
                 | randomSeed = seed
+                , board = Board.generate 50 40 seed
               }
             , Cmd.none
             )

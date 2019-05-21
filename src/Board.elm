@@ -1,6 +1,7 @@
-module Board exposing (Board, boardToList, empty, generate)
+module Board exposing (Board, Cell, Terrain, boardToList, empty, generate, terrainToClass)
 
 import Color exposing (Color)
+import Debug exposing (log)
 import Dict exposing (Dict)
 import Messages exposing (Msg)
 import Random
@@ -19,7 +20,6 @@ type Terrain
     | Floor
     | Forest
     | TownRoad
-    | RoomCore
     | Abyss
 
 
@@ -64,6 +64,28 @@ fakeBoard =
     , dungeon = False
     , grid = Dict.empty
     }
+
+
+terrainToClass : Cell -> String
+terrainToClass { terrain } =
+    case terrain of
+        Wall ->
+            "wall"
+
+        Water ->
+            "water"
+
+        Floor ->
+            "floor"
+
+        Forest ->
+            "forest"
+
+        TownRoad ->
+            "town-road"
+
+        Abyss ->
+            "abyss"
 
 
 posToString : ( Int, Int ) -> String
@@ -167,11 +189,11 @@ getWeight pos t board =
             getNeighborTerrain pos board
 
         matchedNeighbors =
-            count neighborsTerrain t
+            count (log "neighborsTerrain" neighborsTerrain) t
     in
     case matchedNeighbors of
         6 ->
-            0
+            1
 
         5 ->
             10
@@ -192,17 +214,18 @@ getWeight pos t board =
             0
 
 
-generateOneOf : ( Int, Int ) -> ( Cell, List Cell )
-generateOneOf pos =
-    ( Cell "#" False Wall pos
-    , [ Cell "~" True Water pos
-      , Cell "." True Floor pos
-      , Cell "!" True Forest pos
-      , Cell "=" True TownRoad pos
-      , Cell "." True RoomCore pos
-      , Cell "" False Abyss pos
-      ]
-    )
+generateOneOf : ( Int, Int ) -> Random.Seed -> ( Cell, Random.Seed )
+generateOneOf pos seed =
+    Random.step
+        (Random.uniform (Cell "#" False Wall pos)
+            [ Cell "~" True Water pos
+            , Cell "." True Floor pos
+            , Cell "!" True Forest pos
+            , Cell "=" True TownRoad pos
+            , Cell "" False Abyss pos
+            ]
+        )
+        seed
 
 
 randoCell : ( Int, Int ) -> Board -> Random.Seed -> ( Cell, Random.Seed )
@@ -224,7 +247,7 @@ generateCell : Int -> Int -> Board -> Random.Seed -> Board
 generateCell x y board seed =
     let
         ( nextCell, nextSeed ) =
-            randoCell ( x, y ) board seed
+            generateOneOf ( x, y ) seed
 
         nextBoard =
             { board | grid = Dict.insert (posToString ( x, y )) nextCell board.grid }
@@ -243,7 +266,7 @@ generateRow x y board seed =
             generateCell x y board seed
     in
     if y > 0 then
-        generateRow x (y - 1) nextBoard (Random.initialSeed y)
+        generateRow x (y - 1) nextBoard seed
 
     else
         nextBoard
