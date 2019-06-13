@@ -1,5 +1,6 @@
 module Board exposing (Board, Cell, Terrain, boardToList, empty, generate, posToString, terrainToClass)
 
+import AI.Pathfinding exposing (planPath)
 import Color exposing (Color)
 import Debug exposing (log)
 import Dict exposing (Dict)
@@ -157,30 +158,34 @@ generateOneOf pos seed =
         seed
 
 
-generateCell : Int -> Int -> Board -> Random.Seed -> ( Board, Random.Seed )
-generateCell x y board seed =
+generateCell : Int -> Int -> List ( Int, Int ) -> Board -> Random.Seed -> ( Board, Random.Seed )
+generateCell x y path board seed =
     let
         ( nextCell, nextSeed ) =
             generateOneOf ( x, y ) seed
 
         nextBoard =
-            { board | grid = Dict.insert ( x, y ) nextCell board.grid }
+            if List.member ( x, y ) path then
+                { board | grid = Dict.insert ( x, y ) (Cell "." True Floor ( x, y )) board.grid }
+
+            else
+                { board | grid = Dict.insert ( x, y ) (Cell "~" True Water ( x, y )) board.grid }
     in
     if x > 0 then
-        generateCell (x - 1) y nextBoard nextSeed
+        generateCell (x - 1) y path nextBoard nextSeed
 
     else
         ( nextBoard, nextSeed )
 
 
-generateRow : Int -> Int -> Board -> Random.Seed -> Board
-generateRow x y board seed =
+generateRow : Int -> Int -> List ( Int, Int ) -> Board -> Random.Seed -> Board
+generateRow x y path board seed =
     let
         ( nextBoard, nextSeed ) =
-            generateCell x y board seed
+            generateCell x y path board seed
     in
     if y > 0 then
-        generateRow x (y - 1) nextBoard nextSeed
+        generateRow x (y - 1) path nextBoard nextSeed
 
     else
         nextBoard
@@ -237,4 +242,4 @@ For now though we can also just fake that. Replace "fakeBoard" with an actual db
 generate : Int -> Int -> Random.Seed -> Board
 generate width height seed =
     -- generateRow (width - 1) (height - 1) fakeBoard seed
-    generateRooms (width - 1) (height - 1) 0 seed (generateRow (width - 1) (height - 1) fakeBoard seed)
+    generateRow (width - 1) (height - 1) (planPath ( 0, 0 ) ( 49, 49 ) []) fakeBoard seed
