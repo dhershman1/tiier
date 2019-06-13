@@ -1,5 +1,6 @@
 port module Update exposing (update)
 
+import AI.Pathfinding exposing (permutations)
 import Biome exposing (Biome)
 import Board exposing (Board)
 import Cell exposing (Cell)
@@ -86,7 +87,7 @@ update msg model =
                 in
                 ( { model
                     | loadedBoards = Dict.insert id seed model.loadedBoards
-                    , board = Board.generate 50 40 seed
+                    , board = Board.generate 45 45 seed
                   }
                 , Cmd.none
                 )
@@ -98,7 +99,7 @@ update msg model =
                 in
                 ( { model
                     | loadedBoards = Dict.insert id seed model.loadedBoards
-                    , board = Board.generate 50 50 seed
+                    , board = Board.generate 50 45 seed
                   }
                 , Cmd.none
                 )
@@ -107,10 +108,13 @@ update msg model =
             let
                 seed =
                     Random.initialSeed <| log "initial seed" <| Time.posixToMillis now
+
+                tmp =
+                    permutations 20 20
             in
             ( { model
                 | randomSeed = seed
-                , board = Board.generate 50 40 seed
+                , board = Board.generate 42 50 seed
               }
             , Cmd.none
             )
