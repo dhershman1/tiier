@@ -1,9 +1,10 @@
 module View exposing (view)
 
-import Board exposing (boardToList, generate, posToString, terrainToClass)
 import Html exposing (Html, aside, button, div, footer, h1, header, main_, span, text)
 import Html.Attributes exposing (attribute, class, classList, href, id, title)
 import Html.Events exposing (onClick)
+import Map.Board exposing (boardToList, generate, posToString)
+import Map.Pieces exposing (terrainToClass)
 import Messages exposing (Msg(..))
 import Model exposing (Model)
 import Task

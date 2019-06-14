@@ -1,4 +1,4 @@
-module Board exposing (Board, Cell, Terrain, boardToList, empty, generate, posToString, terrainToClass)
+module Map.Board exposing (Board, Cell, Terrain, boardToList, createCell, empty, generate, posToString, terrainToClass)
 
 import AI.Pathfinding exposing (Position, findPath, pythagoreanCost, straightLineCost)
 import Color exposing (Color)
@@ -50,6 +50,30 @@ fakeBoard =
     , dungeon = False
     , grid = Dict.empty
     }
+
+
+strToTerrain : String -> Terrain
+strToTerrain str =
+    case str of
+        "wall" ->
+            Wall
+
+        "water" ->
+            Water
+
+        "floor" ->
+            Floor
+
+        "forest" ->
+            Forest
+
+        _ ->
+            Abyss
+
+
+createCell : Bool -> String -> String -> ( Int, Int ) -> Cell
+createCell pass char terr pos =
+    Cell char pass (strToTerrain terr) pos
 
 
 terrainToClass : Cell -> String
@@ -170,7 +194,8 @@ generateCell x y path board seed =
                 { board | grid = Dict.insert ( x, y ) (Cell "." True Floor ( x, y )) board.grid }
 
             else
-                { board | grid = Dict.insert ( x, y ) (Cell "~" True Water ( x, y )) board.grid }
+                -- { board | grid = Dict.insert ( x, y ) (Cell "~" True Water ( x, y )) board.grid }
+                { board | grid = Dict.insert ( x, y ) nextCell board.grid }
     in
     if x > 0 then
         generateCell (x - 1) y path nextBoard nextSeed
@@ -266,6 +291,6 @@ generate width height seed =
     -- generateRow (width - 1) (height - 1) fakeBoard seed
     let
         path =
-            Debug.log "Path Test" <| Maybe.withDefault [ ( 0, 0 ) ] (findPath straightLineCost (movesFrom fakeBoard) ( 0, 0 ) ( 49, 49 ))
+            Maybe.withDefault [ ( 0, 0 ) ] (findPath straightLineCost (movesFrom fakeBoard) ( 0, 0 ) ( 49, 49 ))
     in
     generateRow (width - 1) (height - 1) path fakeBoard seed

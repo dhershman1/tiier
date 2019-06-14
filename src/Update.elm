@@ -2,13 +2,13 @@ port module Update exposing (update)
 
 import AI.Pathfinding exposing (permutations)
 import Biome exposing (Biome)
-import Board exposing (Board)
 import Cell exposing (Cell)
 import Debug exposing (log)
 import Dict exposing (Dict)
 import Grid exposing (Grid)
 import Keyboard exposing (Key(..))
 import Keyboard.Arrows
+import Map.Board exposing (Board)
 import Messages exposing (..)
 import Model exposing (..)
 import Random
@@ -87,7 +87,7 @@ update msg model =
                 in
                 ( { model
                     | loadedBoards = Dict.insert id seed model.loadedBoards
-                    , board = Board.generate 45 45 seed
+                    , board = Map.Board.generate 45 45 seed
                   }
                 , Cmd.none
                 )
@@ -99,7 +99,7 @@ update msg model =
                 in
                 ( { model
                     | loadedBoards = Dict.insert id seed model.loadedBoards
-                    , board = Board.generate 50 45 seed
+                    , board = Map.Board.generate 50 45 seed
                   }
                 , Cmd.none
                 )
@@ -114,7 +114,7 @@ update msg model =
             in
             ( { model
                 | randomSeed = seed
-                , board = Board.generate 35 50 seed
+                , board = Map.Board.generate 35 50 seed
               }
             , Cmd.none
             )
