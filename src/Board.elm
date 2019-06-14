@@ -1,11 +1,12 @@
 module Board exposing (Board, Cell, Terrain, boardToList, empty, generate, posToString, terrainToClass)
 
-import AI.Pathfinding exposing (planPath)
+import AI.Pathfinding exposing (Position, findPath, pythagoreanCost, straightLineCost)
 import Color exposing (Color)
 import Debug exposing (log)
 import Dict exposing (Dict)
 import Messages exposing (Msg)
 import Random
+import Set exposing (Set)
 
 
 type Neighbor
@@ -236,10 +237,35 @@ generateRooms x y roomCount seed board =
         nextBoard
 
 
+{-| The brain behind how the pathfinding algorithm will go about the pathway
+-}
+movesFrom : Board -> Position -> Set Position
+movesFrom world ( x, y ) =
+    let
+        results =
+            Set.empty
+    in
+    if x == 0 && y == 0 then
+        Set.union (Set.fromList [ ( 1, 0 ), ( 0, 1 ) ]) results
+
+    else if x == 0 then
+        Set.insert ( 1, y ) results
+
+    else if y == 0 then
+        Set.insert ( x, 1 ) results
+
+    else
+        Set.union (Set.fromList [ ( x + 1, y ), ( x, y + 1 ), ( x - 1, y ), ( x, y - 1 ) ]) results
+
+
 {-| The Board will be pulled from our DB to get its stats like Biome, name, dungeon, etc.
 For now though we can also just fake that. Replace "fakeBoard" with an actual db return
 -}
 generate : Int -> Int -> Random.Seed -> Board
 generate width height seed =
     -- generateRow (width - 1) (height - 1) fakeBoard seed
-    generateRow (width - 1) (height - 1) (planPath ( 0, 0 ) ( 49, 49 ) []) fakeBoard seed
+    let
+        path =
+            Debug.log "Path Test" <| Maybe.withDefault [ ( 0, 0 ) ] (findPath straightLineCost (movesFrom fakeBoard) ( 0, 0 ) ( 49, 49 ))
+    in
+    generateRow (width - 1) (height - 1) path fakeBoard seed

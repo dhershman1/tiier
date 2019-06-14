@@ -1,20 +1,203 @@
-module AI.Pathfinding exposing (factorial, permutations, planPath)
+module AI.Pathfinding exposing (Path, Position, findPath, permutations, pythagoreanCost, straightLineCost)
 
 {-| The pathfinding AI is mostly built for building out paths on the map the user can use
 This approach means we can formulate a start, and exit and build multiple paths to those locations
-
-TODO:
-Finish off the decision making so it can make good choices when building out the pathways
-Expand it's ability to make decisions to take more things into account.
-Limit the pathing to 4 directional movement: Up, Down, Left, and Right
-We want the AI to be a bit of a DM/Storyteller here so it needs to think smart
-
+We are using a rendition of the A\* (astar) path finding algorithm
 -}
 
+import Array exposing (Array)
 import Dict exposing (Dict)
 import Json.Encode as Encode
+import Set exposing (Set)
+import Tuple exposing (first, second)
 
 
+type alias Model comparable =
+    { evaluated : Set comparable
+    , openSet : Set comparable
+    , costs : Dict comparable Float
+    , cameFrom : Dict comparable comparable
+    }
+
+
+{-| A position is just a pair of (x,y) coordinates.
+-}
+type alias Position =
+    ( Int, Int )
+
+
+{-| A path is a `List` of `Position`s.
+-}
+type alias Path =
+    List Position
+
+
+initialModel : comparable -> Model comparable
+initialModel start =
+    { evaluated = Set.empty
+    , openSet = Set.singleton start
+    , costs = Dict.singleton start 0
+    , cameFrom = Dict.empty
+    }
+
+
+planPath :
+    (comparable -> comparable -> Float)
+    -> (comparable -> Set comparable)
+    -> comparable
+    -> comparable
+    -> Maybe (List comparable)
+planPath costFn moveFn start end =
+    initialModel start
+        |> astar costFn moveFn end
+        |> Maybe.map Array.toList
+
+
+cheapestOpen : (comparable -> Float) -> Model comparable -> Maybe comparable
+cheapestOpen costFn model =
+    model.openSet
+        |> Set.toList
+        |> List.filterMap
+            (\position ->
+                case Dict.get position model.costs of
+                    Nothing ->
+                        Nothing
+
+                    Just cost ->
+                        Just ( position, cost + costFn position )
+            )
+        |> List.sortBy second
+        |> List.head
+        |> Maybe.map first
+
+
+reconstructPath : Dict comparable comparable -> comparable -> Array comparable
+reconstructPath cameFrom goal =
+    case Dict.get goal cameFrom of
+        Nothing ->
+            Array.empty
+
+        Just next ->
+            Array.push goal
+                (reconstructPath cameFrom next)
+
+
+updateCost : comparable -> comparable -> Model comparable -> Model comparable
+updateCost current neighbour model =
+    let
+        newCameFrom =
+            Dict.insert neighbour current model.cameFrom
+
+        newCosts =
+            Dict.insert neighbour distanceTo model.costs
+
+        distanceTo =
+            reconstructPath newCameFrom neighbour
+                |> Array.length
+                |> toFloat
+
+        newModel =
+            { model
+                | costs = newCosts
+                , cameFrom = newCameFrom
+            }
+    in
+    case Dict.get neighbour model.costs of
+        Nothing ->
+            newModel
+
+        Just previousDistance ->
+            if distanceTo < previousDistance then
+                newModel
+
+            else
+                model
+
+
+astar :
+    (comparable -> comparable -> Float)
+    -> (comparable -> Set comparable)
+    -> comparable
+    -> Model comparable
+    -> Maybe (Array comparable)
+astar costFn moveFn goal model =
+    case cheapestOpen (costFn goal) model of
+        Nothing ->
+            Nothing
+
+        Just current ->
+            if current == goal then
+                Just (reconstructPath model.cameFrom goal)
+
+            else
+                let
+                    modelPopped =
+                        { model
+                            | openSet = Set.remove current model.openSet
+                            , evaluated = Set.insert current model.evaluated
+                        }
+
+                    neighbours =
+                        moveFn current
+
+                    newNeighbours =
+                        Set.diff neighbours modelPopped.evaluated
+
+                    modelWithNeighbours =
+                        { modelPopped
+                            | openSet =
+                                Set.union modelPopped.openSet
+                                    newNeighbours
+                        }
+
+                    modelWithCosts =
+                        Set.foldl (updateCost current) modelWithNeighbours newNeighbours
+                in
+                astar costFn moveFn goal modelWithCosts
+
+
+findPath :
+    (Position -> Position -> Float)
+    -> (Position -> Set Position)
+    -> Position
+    -> Position
+    -> Maybe Path
+findPath =
+    planPath
+
+
+{-| A simple costing algorithm. Think of it as the number of moves a
+rook/castle would have to make on a chessboard.
+-}
+straightLineCost : Position -> Position -> Float
+straightLineCost ( x1, y1 ) ( x2, y2 ) =
+    let
+        dx =
+            abs (x1 - x2)
+
+        dy =
+            abs (y1 - y2)
+    in
+    toFloat <| dx + dy
+
+
+{-| An alternative costing algorithm, which calculates pythagorean distance.
+-}
+pythagoreanCost : Position -> Position -> Float
+pythagoreanCost ( x1, y1 ) ( x2, y2 ) =
+    let
+        dx =
+            toFloat <| abs (x1 - x2)
+
+        dy =
+            toFloat <| abs (y1 - y2)
+    in
+    abs <| (sqrt 2 * min dx dy) + abs (dy - dx)
+
+
+{-| Counts how many viable paths there are to display
+Really only has a use for debugging
+-}
 factorial : Int -> Float -> Float
 factorial n current =
     if n == 1 then
@@ -24,43 +207,6 @@ factorial n current =
         factorial (n - 1) (toFloat n * current)
 
 
-{-| This function let's the AI see where it currently is, and where it should go next
-Still a heavy WIP obviously it's a very dumb version of a simple down right path.
-We don't want that, we want a nice intertwind path the player can optionally take
-But also guarantee that the player can move to the next stage
--}
-whichDirection : ( Int, Int ) -> ( Int, Int )
-whichDirection ( x, y ) =
-    if x /= 49 || y /= 49 then
-        ( x + 1, y + 1 )
-        -- else if x + 1 == 0 || y + 1 == 0 then
-        --     ( x - 1, y - 1 )
-
-    else
-        ( x + 1, y - 1 )
-
-
-planPath : ( Int, Int ) -> ( Int, Int ) -> List ( Int, Int ) -> List ( Int, Int )
-planPath start ( endX, endY ) current =
-    let
-        ( lastX, lastY ) =
-            Maybe.withDefault start (List.head current)
-    in
-    if lastX == endX || lastY == endY then
-        current
-
-    else
-        planPath start ( endX, endY ) (List.append [ whichDirection ( lastX, lastY ) ] current)
-
-
-
--- 137846528820
--- 137846528820
-
-
-{-| Counts how many viable paths there are
-(Used for debugging)
--}
 permutations : Int -> Int -> Int
 permutations x y =
     Debug.log "Number of permutations" (round (factorial (x + y) 1 / (factorial x 1 * factorial y 1)))

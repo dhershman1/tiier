@@ -1,6 +1,6 @@
 port module Update exposing (update)
 
-import AI.Pathfinding exposing (permutations, planPath)
+import AI.Pathfinding exposing (permutations)
 import Biome exposing (Biome)
 import Board exposing (Board)
 import Cell exposing (Cell)
@@ -111,9 +111,6 @@ update msg model =
 
                 tmp =
                     permutations 35 50
-
-                tmp2 =
-                    log "Path" <| planPath ( 0, 0 ) ( 49, 49 ) []
             in
             ( { model
                 | randomSeed = seed
