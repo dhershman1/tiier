@@ -1,11 +1,8 @@
 port module Update exposing (update)
 
 import AI.Pathfinding exposing (permutations)
-import Biome exposing (Biome)
-import Cell exposing (Cell)
 import Debug exposing (log)
 import Dict exposing (Dict)
-import Grid exposing (Grid)
 import Keyboard exposing (Key(..))
 import Keyboard.Arrows
 import Map.Board exposing (Board)
@@ -118,9 +115,6 @@ update msg model =
               }
             , Cmd.none
             )
-
-        SetBiome b ->
-            ( { model | biome = b }, Cmd.none )
 
         KeyMsg key ->
             ( { model | pressedKeys = Keyboard.update key model.pressedKeys }

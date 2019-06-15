@@ -2,7 +2,6 @@ module Model exposing (Model, State(..), decode, decodeState, encode, encodeStat
 
 -- import Grid exposing (Grid)
 
-import Biome exposing (Biome)
 import Dict exposing (Dict)
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -89,7 +88,6 @@ type alias Model =
     , randomSeed : Seed
     , loadedBoards : Dict String Seed
     , board : Board
-    , biome : Biome
     }
 
 
@@ -103,26 +101,23 @@ initial =
     , randomSeed = Random.initialSeed 0
     , loadedBoards = Dict.empty
     , board = Map.Board.generate 50 50 (Random.initialSeed 0)
-    , biome = Biome.fromString "Forest"
     }
 
 
 decode : Decode.Decoder Model
 decode =
-    Decode.map5
-        (\posX posY state difficulty biome ->
+    Decode.map4
+        (\posX posY state difficulty ->
             { initial
                 | position = ( posX, posY )
                 , state = state
                 , difficulty = difficulty
-                , biome = biome
             }
         )
         (Decode.field "posX" Decode.int)
         (Decode.field "posY" Decode.int)
         (Decode.field "state" (Decode.map decodeState Decode.string))
         (Decode.field "difficulty" (Decode.map decodeDifficulty Decode.string))
-        (Decode.field "biome" (Decode.map Biome.fromString Decode.string))
 
 
 encode : Int -> Model -> String
@@ -134,6 +129,5 @@ encode indent model =
             , ( "posY", Encode.int (Tuple.second model.position) )
             , ( "state", Encode.string (encodeState model.state) )
             , ( "difficulty", Encode.string (encodeDifficulty model.difficulty) )
-            , ( "biome", Encode.string (Biome.toString model.biome) )
             ]
         )

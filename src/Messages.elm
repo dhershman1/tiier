@@ -1,6 +1,5 @@
 module Messages exposing (Msg(..))
 
-import Biome exposing (Biome)
 import Browser.Dom exposing (Viewport)
 import Keyboard exposing (Key(..))
 import Keyboard.Arrows
@@ -17,6 +16,5 @@ type Msg
     | LoadBoard Posix String
     | Resize Int Int
     | KeyMsg Keyboard.Msg
-    | SetBiome Biome
     | GetViewport Viewport
     | Noop

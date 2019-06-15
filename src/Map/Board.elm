@@ -1,4 +1,4 @@
-module Map.Board exposing (Board, boardToList, generate, posToString)
+module Map.Board exposing (Board, boardToList, generate, posToString, strToTerrain, terrainToClass)
 
 import Dict exposing (Dict)
 import Map.Pieces exposing (..)
@@ -39,6 +39,47 @@ fakeBoard =
     , dungeon = False
     , grid = Dict.empty
     }
+
+
+strToTerrain : String -> Terrain
+strToTerrain str =
+    case str of
+        "wall" ->
+            Wall
+
+        "water" ->
+            Water
+
+        "floor" ->
+            Floor
+
+        "forest" ->
+            Forest
+
+        _ ->
+            Abyss
+
+
+terrainToClass : Cell -> String
+terrainToClass { terrain } =
+    case terrain of
+        Wall ->
+            "wall"
+
+        Water ->
+            "water"
+
+        Floor ->
+            "floor"
+
+        Forest ->
+            "forest"
+
+        TownRoad ->
+            "town-road"
+
+        Abyss ->
+            "abyss"
 
 
 posToString : ( Int, Int ) -> String
