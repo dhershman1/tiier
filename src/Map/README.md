@@ -9,10 +9,10 @@ The process runs as such:
 3. The starter room is added (where the player spawns)
 4. The next pass over adds the layout into the map with walls
 5. Pass #3 adds terrain to be filled in such as water, forests, etc.
-  - This is based on a probability engine the AI uses
+    - This is based on a probability engine the AI uses
 6. The AI is then instructed to connect the rooms together in some manner AND to ensure there is a way to get to the exit
 7. The last pass through is what generates the treasure, events, traps, and monsters on the map
-  - This is also driven by the AI storyteller
+    - This is also driven by the AI storyteller
 
 The above process is driven by an AI like storyteller or "DM" you can read more on that in the AI folder.
 
