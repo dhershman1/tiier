@@ -31,6 +31,14 @@ type alias Board =
     }
 
 
+type alias MapStats =
+    { width : Int
+    , height : Int
+    , x : Int
+    , y : Int
+    }
+
+
 fakeBoard : Board
 fakeBoard =
     { name = "Test Board"
@@ -122,35 +130,66 @@ generateRow x y board =
         nextBoard
 
 
-{-| Place the Starting Room for the map
--}
-placeStartArea : ( Int, Int ) -> Board -> Board
-placeStartArea current board =
+
+-- withinBounds : Int -> Int -> Int -> Bool
+-- withinBounds coord min max =
+
+
+buildBasicRoom : ( Int, Int ) -> ( Int, Int ) -> Int -> Int -> Board -> Board
+buildBasicRoom coords ( endX, endY ) width height board =
     let
         currentCell =
-            Maybe.withDefault (Cell "~" True Water current) (Dict.get current board.grid)
+            Maybe.withDefault (Cell "~" True Water coords) (Dict.get coords board.grid)
 
         nextBoard =
+            -- { board | grid = Dict.insert coords (Cell "." True Floor coords) board.grid }
             if currentCell.terrain == Water then
-                { board | grid = Dict.insert current (Cell "." True Floor current) board.grid }
+                { board | grid = Dict.insert coords (Cell "." True Floor coords) board.grid }
 
             else
                 board
 
         ( nX, nY ) =
-            if Tuple.first current < 4 then
-                ( Tuple.first current + 1, Tuple.second current )
+            if Tuple.first coords < endX then
+                ( Tuple.first coords + 1, Tuple.second coords )
 
             else
-                ( 0, Tuple.second current + 1 )
+                ( Tuple.first coords - width, Tuple.second coords + 1 )
     in
-    if nY > 2 then
+    if nY == endY then
         nextBoard
 
     else
-        placeStartArea ( nX, nY ) nextBoard
+        buildBasicRoom ( nX, nY ) ( endX, endY ) width height nextBoard
+
+
+planRooms : Int -> ( Int, Int ) -> ( Int, Int ) -> Board -> Random.Seed -> Board
+planRooms maxRooms ( w1, w2 ) ( h1, h2 ) board seed =
+    let
+        ( { width, height, x, y }, nextSeed ) =
+            Random.step
+                (Random.map4 MapStats
+                    (Random.int w1 w2)
+                    (Random.int h1 h2)
+                    (Random.int 3 34)
+                    (Random.int 3 49)
+                )
+                seed
+
+        nextBoard =
+            buildBasicRoom ( x, y ) ( clamp 3 34 (x + width), clamp 3 49 (y + height) ) width height board
+    in
+    if maxRooms == 0 then
+        nextBoard
+
+    else
+        planRooms (maxRooms - 1) ( w1, w2 ) ( h1, h2 ) nextBoard nextSeed
 
 
 generate : Int -> Int -> Random.Seed -> Board
 generate rows cols seed =
-    placeStartArea ( 0, 0 ) (generateRow (rows - 1) (cols - 1) fakeBoard)
+    planRooms 20 ( 3, 6 ) ( 3, 6 ) (generateRow (rows - 1) (cols - 1) fakeBoard) seed
+
+
+
+-- buildBasicRoom ( 0, 0 ) 3 2 (generateRow (rows - 1) (cols - 1) fakeBoard)
