@@ -162,6 +162,8 @@ buildBasicRoom coords ( endX, endY ) width height board =
         buildBasicRoom ( nX, nY ) ( endX, endY ) width height nextBoard
 
 
+{-| It's important to know that most of these hardcoded numbers will probably become dynamic since this will probably be all stored in a database
+-}
 planRooms : Int -> ( Int, Int ) -> ( Int, Int ) -> Board -> Random.Seed -> Board
 planRooms maxRooms ( w1, w2 ) ( h1, h2 ) board seed =
     let
