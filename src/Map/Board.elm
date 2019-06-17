@@ -142,13 +142,12 @@ buildBasicRoom coords ( endX, endY ) width height board =
             Maybe.withDefault (Cell "~" True Water coords) (Dict.get coords board.grid)
 
         nextBoard =
-            -- { board | grid = Dict.insert coords (Cell "." True Floor coords) board.grid }
-            if currentCell.terrain == Water then
-                { board | grid = Dict.insert coords (Cell "." True Floor coords) board.grid }
+            { board | grid = Dict.insert coords (Cell "." True Floor coords) board.grid }
 
-            else
-                board
-
+        -- if currentCell.terrain == Water then
+        --     { board | grid = Dict.insert coords (Cell "." True Floor coords) board.grid }
+        -- else
+        --     board
         ( nX, nY ) =
             if Tuple.first coords < endX then
                 ( Tuple.first coords + 1, Tuple.second coords )
