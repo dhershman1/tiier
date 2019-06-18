@@ -106,7 +106,7 @@ generateCells : Int -> Int -> Board -> Board
 generateCells x y board =
     let
         nextBoard =
-            { board | grid = Dict.insert ( x, y ) (Cell "~" True Water ( x, y )) board.grid }
+            { board | grid = Dict.insert ( x, y ) (Cell "#" True Wall ( x, y )) board.grid }
     in
     if x > 0 then
         generateCells (x - 1) y nextBoard
@@ -130,11 +130,6 @@ generateRow x y board =
         nextBoard
 
 
-
--- withinBounds : Int -> Int -> Int -> Bool
--- withinBounds coord min max =
-
-
 buildBasicRoom : ( Int, Int ) -> ( Int, Int ) -> Int -> Int -> Board -> Board
 buildBasicRoom coords ( endX, endY ) width height board =
     let
@@ -144,18 +139,14 @@ buildBasicRoom coords ( endX, endY ) width height board =
         nextBoard =
             { board | grid = Dict.insert coords (Cell "." True Floor coords) board.grid }
 
-        -- if currentCell.terrain == Water then
-        --     { board | grid = Dict.insert coords (Cell "." True Floor coords) board.grid }
-        -- else
-        --     board
         ( nX, nY ) =
             if Tuple.first coords < endX then
                 ( Tuple.first coords + 1, Tuple.second coords )
 
             else
-                ( Tuple.first coords - width, Tuple.second coords + 1 )
+                ( Tuple.first coords - (width + 1), Tuple.second coords + 1 )
     in
-    if nY == endY then
+    if nY > endY then
         nextBoard
 
     else
@@ -189,7 +180,11 @@ planRooms maxRooms ( w1, w2 ) ( h1, h2 ) board seed =
 
 generate : Int -> Int -> Random.Seed -> Board
 generate rows cols seed =
-    planRooms 20 ( 3, 6 ) ( 3, 6 ) (generateRow (rows - 1) (cols - 1) fakeBoard) seed
+    let
+        boardWithEnd =
+            buildBasicRoom ( 30, 47 ) ( 34, 49 ) 3 4 (buildBasicRoom ( 0, 0 ) ( 4, 2 ) 3 4 (generateRow (rows - 1) (cols - 1) fakeBoard))
+    in
+    planRooms 25 ( 3, 6 ) ( 3, 6 ) boardWithEnd seed
 
 
 
