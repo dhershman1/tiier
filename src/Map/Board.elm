@@ -1,8 +1,9 @@
 module Map.Board exposing (Board, boardToList, generate, posToString, strToTerrain, terrainToClass)
 
+import AI.Pathfinding exposing (Position, findPath)
 import Dict exposing (Dict)
-import Map.Pieces exposing (..)
 import Random
+import Set exposing (Set)
 
 
 type Terrain
@@ -130,6 +131,8 @@ generateRow x y board =
         nextBoard
 
 
+{-| Builds out a basic square room from the top right corner to the bottom right corner and places it on the map
+-}
 buildBasicRoom : ( Int, Int ) -> ( Int, Int ) -> Int -> Board -> Board
 buildBasicRoom coords ( endX, endY ) width board =
     let
@@ -178,13 +181,34 @@ planRooms maxRooms ( w1, w2 ) ( h1, h2 ) board seed =
         planRooms (maxRooms - 1) ( w1, w2 ) ( h1, h2 ) nextBoard nextSeed
 
 
+movesFrom : Board -> Position -> Set Position
+movesFrom world ( x, y ) =
+    let
+        results =
+            Set.empty
+    in
+    if x == 0 && y == 0 then
+        Set.union (Set.fromList [ ( 1, 0 ), ( 0, 1 ) ]) results
+
+    else if x == 0 then
+        Set.insert ( 1, y ) results
+
+    else if y == 0 then
+        Set.insert ( x, 1 ) results
+
+    else
+        Set.union (Set.fromList [ ( x + 1, y ), ( x, y + 1 ), ( x - 1, y ), ( x, y - 1 ) ]) results
+
+
+{-| The primary functionality that will plan out rooms for the board/map and build out based on the information provided
+-}
 generate : Int -> Int -> Random.Seed -> Board
 generate rows cols seed =
     let
         boardWithEnd =
             buildBasicRoom ( 30, 47 ) ( 34, 49 ) 3 (buildBasicRoom ( 0, 0 ) ( 4, 2 ) 3 (generateRow (rows - 1) (cols - 1) fakeBoard))
     in
-    planRooms 25 ( 3, 6 ) ( 3, 6 ) boardWithEnd seed
+    planRooms 30 ( 3, 6 ) ( 3, 6 ) boardWithEnd seed
 
 
 
