@@ -130,8 +130,8 @@ generateRow x y board =
         nextBoard
 
 
-buildBasicRoom : ( Int, Int ) -> ( Int, Int ) -> Int -> Int -> Board -> Board
-buildBasicRoom coords ( endX, endY ) width height board =
+buildBasicRoom : ( Int, Int ) -> ( Int, Int ) -> Int -> Board -> Board
+buildBasicRoom coords ( endX, endY ) width board =
     let
         currentCell =
             Maybe.withDefault (Cell "~" True Water coords) (Dict.get coords board.grid)
@@ -150,7 +150,7 @@ buildBasicRoom coords ( endX, endY ) width height board =
         nextBoard
 
     else
-        buildBasicRoom ( nX, nY ) ( endX, endY ) width height nextBoard
+        buildBasicRoom ( nX, nY ) ( endX, endY ) width nextBoard
 
 
 {-| It's important to know that most of these hardcoded numbers will probably become dynamic since this will probably be all stored in a database
@@ -169,7 +169,7 @@ planRooms maxRooms ( w1, w2 ) ( h1, h2 ) board seed =
                 seed
 
         nextBoard =
-            buildBasicRoom ( x, y ) ( clamp 3 34 (x + width), clamp 3 49 (y + height) ) width height board
+            buildBasicRoom ( x, y ) ( clamp 3 34 (x + width), clamp 3 49 (y + height) ) width board
     in
     if maxRooms == 0 then
         nextBoard
@@ -182,7 +182,7 @@ generate : Int -> Int -> Random.Seed -> Board
 generate rows cols seed =
     let
         boardWithEnd =
-            buildBasicRoom ( 30, 47 ) ( 34, 49 ) 3 4 (buildBasicRoom ( 0, 0 ) ( 4, 2 ) 3 4 (generateRow (rows - 1) (cols - 1) fakeBoard))
+            buildBasicRoom ( 30, 47 ) ( 34, 49 ) 3 (buildBasicRoom ( 0, 0 ) ( 4, 2 ) 3 (generateRow (rows - 1) (cols - 1) fakeBoard))
     in
     planRooms 25 ( 3, 6 ) ( 3, 6 ) boardWithEnd seed
 
