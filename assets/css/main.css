@@ -1,6 +1,9 @@
 :root {
   --bg: #000000;
   --text: #FFFFFF;
+  --ground: rgb(196, 130, 87);
+  --wall: rgb(233, 233, 233);
+  --wall-shade1: rgb(243, 194, 198);
 }
 
 body {
@@ -60,11 +63,11 @@ header {
 
 .wall {
   color: #3a3a3a;
-  background-color: rgb(233, 233, 233);
+  /* background-color: rgb(233, 233, 233); */
 }
 
 .water {
-  background-color: rgb(87, 87, 255);
+  background-color: rgb(121, 121, 255);
 }
 
 .forest {
@@ -72,7 +75,7 @@ header {
 }
 
 .floor {
-  background-color: rgb(177, 108, 62);
+  /* background-color: rgb(177, 108, 62); */
 }
 
 .town-road {

@@ -1,6 +1,6 @@
-module Map.Board exposing (Board, boardToList, generate, posToString, strToTerrain, terrainToClass)
+module Map.Board exposing (Board, Cell, boardToList, generate, posToString, strToTerrain, terrainToClass)
 
-import AI.Pathfinding exposing (Position, findPath, straightLineCost)
+import AI.Pathfinding exposing (Position, findPath, pythagoreanCost, straightLineCost)
 import Dict exposing (Dict)
 import Random
 import Set exposing (Set)
@@ -107,7 +107,7 @@ generateCells : Int -> Int -> Board -> Board
 generateCells x y board =
     let
         nextBoard =
-            { board | grid = Dict.insert ( x, y ) (Cell "#" True Wall ( x, y )) board.grid }
+            { board | grid = Dict.insert ( x, y ) (Cell "~" True Water ( x, y )) board.grid }
     in
     if x > 0 then
         generateCells (x - 1) y nextBoard
@@ -156,10 +156,51 @@ buildBasicRoom coords ( endX, endY ) width board =
         buildBasicRoom ( nX, nY ) ( endX, endY ) width nextBoard
 
 
+drawPath : List ( Int, Int ) -> Board -> Board
+drawPath path board =
+    let
+        coord =
+            Maybe.withDefault ( 0, 0 ) (List.head path)
+
+        rest =
+            Maybe.withDefault [] (List.tail path)
+
+        nextBoard =
+            { board | grid = Dict.insert coord (Cell "." True Floor coord) board.grid }
+    in
+    if List.length path == 0 && List.isEmpty rest then
+        nextBoard
+
+    else
+        drawPath rest nextBoard
+
+
+connectRooms : List ( Int, Int ) -> ( Int, Int ) -> Board -> Board
+connectRooms rooms lastCoord board =
+    let
+        coords =
+            Maybe.withDefault ( 0, 0 ) (List.head rooms)
+
+        path =
+            Maybe.withDefault [] (findPath pythagoreanCost (movesFrom board) lastCoord coords)
+
+        nextBoard =
+            drawPath path board
+
+        rest =
+            Maybe.withDefault [] (List.tail rooms)
+    in
+    if List.isEmpty rest then
+        nextBoard
+
+    else
+        connectRooms rest coords nextBoard
+
+
 {-| It's important to know that most of these hardcoded numbers will probably become dynamic since this will probably be all stored in a database
 -}
-planRooms : Int -> ( Int, Int ) -> ( Int, Int ) -> Board -> Random.Seed -> Board
-planRooms maxRooms ( w1, w2 ) ( h1, h2 ) board seed =
+planRooms : Int -> ( Int, Int ) -> ( Int, Int ) -> List ( Int, Int ) -> Board -> Random.Seed -> Board
+planRooms maxRooms ( w1, w2 ) ( h1, h2 ) tilesList board seed =
     let
         ( { width, height, x, y }, nextSeed ) =
             Random.step
@@ -173,31 +214,15 @@ planRooms maxRooms ( w1, w2 ) ( h1, h2 ) board seed =
 
         nextBoard =
             buildBasicRoom ( x, y ) ( clamp 3 34 (x + width), clamp 3 49 (y + height) ) width board
+
+        currentRooms =
+            List.append tilesList [ ( clamp 3 34 (x + width), clamp 3 49 (y + height) ) ]
     in
     if maxRooms == 0 then
-        nextBoard
+        connectRooms tilesList ( 4, 2 ) nextBoard
 
     else
-        planRooms (maxRooms - 1) ( w1, w2 ) ( h1, h2 ) nextBoard nextSeed
-
-
-connectRooms : List ( Int, Int ) -> Board -> Board
-connectRooms paths board =
-    let
-        coords =
-            Maybe.withDefault ( 0, 0 ) (List.head paths)
-
-        nextBoard =
-            { board | grid = Dict.insert coords (Cell "." True Floor coords) board.grid }
-
-        rest =
-            Maybe.withDefault [] (List.tail paths)
-    in
-    if List.isEmpty rest then
-        nextBoard
-
-    else
-        connectRooms rest nextBoard
+        planRooms (maxRooms - 1) ( w1, w2 ) ( h1, h2 ) currentRooms nextBoard nextSeed
 
 
 movesFrom : Board -> Position -> Set Position
@@ -226,14 +251,8 @@ generate rows cols seed =
     let
         boardWithEnd =
             buildBasicRoom ( 30, 47 ) ( 34, 49 ) 3 (buildBasicRoom ( 0, 0 ) ( 4, 2 ) 3 (generateRow (rows - 1) (cols - 1) fakeBoard))
-
-        roomedBoard =
-            planRooms 30 ( 3, 6 ) ( 3, 6 ) boardWithEnd seed
-
-        paths =
-            Maybe.withDefault [] (findPath straightLineCost (movesFrom roomedBoard) ( 4, 2 ) ( 34, 49 ))
     in
-    connectRooms paths roomedBoard
+    planRooms 30 ( 3, 6 ) ( 3, 6 ) [] boardWithEnd seed
 
 
 

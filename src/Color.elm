@@ -1,4 +1,4 @@
-module Color exposing (Color, decode, encode, generateRgb, rgb, toRgb, toString)
+module Color exposing (Color, decode, encode, randomRgb, rgb, toRgb, toString)
 
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -30,29 +30,19 @@ toString (Color { red, green, blue }) =
         ++ ")"
 
 
-randoMinMax : ( Int, Int ) -> Random.Generator Int
-randoMinMax t =
-    Random.int (Tuple.first t) (Tuple.second t)
-
-
-pluckTuple : List ( Int, Int ) -> ( Int, Int )
-pluckTuple t =
-    Maybe.withDefault ( 0, 0 ) (List.head t)
-
-
-generateRgb : List ( Int, Int ) -> Random.Generator Color
-generateRgb colors =
+randomRgb : ( Int, Int ) -> ( Int, Int ) -> ( Int, Int ) -> Random.Seed -> ( String, Random.Seed )
+randomRgb ( rMin, rMax ) ( gMin, gMax ) ( bMin, bMax ) seed =
     let
-        red =
-            pluckTuple colors
-
-        green =
-            List.drop 1 colors
-
-        blue =
-            List.drop 2 colors
+        ( ranRgb, nextSeed ) =
+            Random.step
+                (Random.map3 rgb
+                    (Random.int rMin rMax)
+                    (Random.int gMin gMax)
+                    (Random.int bMin bMax)
+                )
+                seed
     in
-    Random.map3 rgb (randoMinMax red) (randoMinMax (pluckTuple green)) (randoMinMax (pluckTuple blue))
+    ( toString ranRgb, nextSeed )
 
 
 decode : Decode.Decoder Color
