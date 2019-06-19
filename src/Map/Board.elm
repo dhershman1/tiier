@@ -1,6 +1,6 @@
 module Map.Board exposing (Board, boardToList, generate, posToString, strToTerrain, terrainToClass)
 
-import AI.Pathfinding exposing (Position, findPath)
+import AI.Pathfinding exposing (Position, findPath, straightLineCost)
 import Dict exposing (Dict)
 import Random
 import Set exposing (Set)
@@ -181,6 +181,25 @@ planRooms maxRooms ( w1, w2 ) ( h1, h2 ) board seed =
         planRooms (maxRooms - 1) ( w1, w2 ) ( h1, h2 ) nextBoard nextSeed
 
 
+connectRooms : List ( Int, Int ) -> Board -> Board
+connectRooms paths board =
+    let
+        coords =
+            Maybe.withDefault ( 0, 0 ) (List.head paths)
+
+        nextBoard =
+            { board | grid = Dict.insert coords (Cell "." True Floor coords) board.grid }
+
+        rest =
+            Maybe.withDefault [] (List.tail paths)
+    in
+    if List.isEmpty rest then
+        nextBoard
+
+    else
+        connectRooms rest nextBoard
+
+
 movesFrom : Board -> Position -> Set Position
 movesFrom world ( x, y ) =
     let
@@ -207,8 +226,14 @@ generate rows cols seed =
     let
         boardWithEnd =
             buildBasicRoom ( 30, 47 ) ( 34, 49 ) 3 (buildBasicRoom ( 0, 0 ) ( 4, 2 ) 3 (generateRow (rows - 1) (cols - 1) fakeBoard))
+
+        roomedBoard =
+            planRooms 30 ( 3, 6 ) ( 3, 6 ) boardWithEnd seed
+
+        paths =
+            Maybe.withDefault [] (findPath straightLineCost (movesFrom roomedBoard) ( 4, 2 ) ( 34, 49 ))
     in
-    planRooms 30 ( 3, 6 ) ( 3, 6 ) boardWithEnd seed
+    connectRooms paths roomedBoard
 
 
 
