@@ -24,6 +24,9 @@ getColor terrain seed =
         "water" ->
             randomRgb ( 87, 121 ) ( 87, 121 ) ( 255, 255 ) seed
 
+        "door" ->
+            ( "rgb(248, 83, 97)", Random.initialSeed 10 )
+
         _ ->
             ( "rgb(0, 0, 0)", Random.initialSeed 12 )
 
