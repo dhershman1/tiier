@@ -8,6 +8,7 @@ import Set exposing (Set)
 
 type Terrain
     = Water
+    | ShallowWater
     | Wall
     | Floor
     | Forest
@@ -15,8 +16,13 @@ type Terrain
     | Abyss
 
 
+type alias Point =
+    ( Int, Int )
+
+
 type alias Cell =
     { char : String
+    , cost : Float
     , passable : Bool
     , terrain : Terrain
     , pos : ( Int, Int )
@@ -61,6 +67,9 @@ strToTerrain str =
         "forest" ->
             Forest
 
+        "shallow-water" ->
+            ShallowWater
+
         _ ->
             Abyss
 
@@ -83,8 +92,26 @@ terrainToClass { terrain } =
         TownRoad ->
             "town-road"
 
+        ShallowWater ->
+            "shallow-water"
+
         Abyss ->
             "abyss"
+
+
+wall : Point -> Cell
+wall pos =
+    Cell "#" (1 / 0) False Wall pos
+
+
+floor : Point -> Cell
+floor pos =
+    Cell "." 1 True Floor pos
+
+
+water : Point -> Cell
+water pos =
+    Cell "~" 1 True Water pos
 
 
 posToString : ( Int, Int ) -> String
@@ -103,7 +130,7 @@ generateCells : Int -> Int -> Board -> Board
 generateCells x y board =
     let
         nextBoard =
-            { board | grid = Dict.insert ( x, y ) (Cell "" False Abyss ( x, y )) board.grid }
+            { board | grid = Dict.insert ( x, y ) (Cell "" (1 / 0) False Abyss ( x, y )) board.grid }
     in
     if x > 0 then
         generateCells (x - 1) y nextBoard
@@ -133,10 +160,10 @@ buildBasicRoom : ( Int, Int ) -> ( Int, Int ) -> Int -> Board -> Board
 buildBasicRoom coords ( endX, endY ) width board =
     let
         currentCell =
-            Maybe.withDefault (Cell "~" True Water coords) (Dict.get coords board.grid)
+            Maybe.withDefault (water coords) (Dict.get coords board.grid)
 
         nextBoard =
-            { board | grid = Dict.insert coords (Cell "." True Floor coords) board.grid }
+            { board | grid = Dict.insert coords (floor coords) board.grid }
 
         ( nX, nY ) =
             if Tuple.first coords < endX then
@@ -162,7 +189,7 @@ drawPath path board =
             Maybe.withDefault [] (List.tail path)
 
         nextBoard =
-            { board | grid = Dict.insert coord (Cell "." True Floor coord) board.grid }
+            { board | grid = Dict.insert coord (floor coord) board.grid }
     in
     if List.length path == 0 && List.isEmpty rest then
         nextBoard
@@ -238,6 +265,43 @@ movesFrom world ( x, y ) =
 
     else
         Set.union (Set.fromList [ ( x + 1, y ), ( x, y + 1 ), ( x - 1, y ), ( x, y - 1 ) ]) results
+
+
+{-| Can be used for the Dijkstra Algorithm for path finding, hopefully. This should find the cheapest and passable neighbor for the algo to use.
+-}
+lowestNeighbor : Board -> List Point -> { pos : Point, cost : Float }
+lowestNeighbor board neighbors =
+    let
+        cheapestPoint =
+            List.foldl
+                (\a b ->
+                    let
+                        tileA =
+                            Maybe.withDefault (wall a) (Dict.get a board.grid)
+
+                        tileB =
+                            Maybe.withDefault (wall b) (Dict.get b board.grid)
+                    in
+                    if tileA.passable && tileB.passable then
+                        if tileA.cost > tileB.cost then
+                            tileB.pos
+
+                        else
+                            tileA.pos
+
+                    else if tileA.passable then
+                        tileA.pos
+
+                    else
+                        tileB.pos
+                )
+                ( 0, 0 )
+                neighbors
+
+        { pos, cost } =
+            Maybe.withDefault (floor ( 0, 0 )) (Dict.get cheapestPoint board.grid)
+    in
+    { pos = pos, cost = cost }
 
 
 {-| The primary functionality that will plan out rooms for the board/map and build out based on the information provided

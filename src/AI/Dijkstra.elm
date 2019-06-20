@@ -59,7 +59,7 @@ blankDMap : Point -> Map -> Map
 blankDMap ( x, y ) board =
     let
         nextBoard =
-            Dict.insert ( x, y ) 0 board
+            Dict.insert ( x, y ) 999 board
 
         ( nX, nY ) =
             if x < 34 then
@@ -76,6 +76,14 @@ blankDMap ( x, y ) board =
 
 
 
+-- calc : (List Point -> { pos : Point, cost : Float }) -> Point -> Map -> Map
+-- calc lowestNeighbor p board =
+-- calc : (List Point -> { pos : Point, cost : Float }) -> (Point -> Bool) -> Point -> Map -> Map
+-- calc getLowestNeighbor isPassable p board =
+--     let
+--         currBoard =
+--             Dict.insert p 0 board
+--     in
 -- lowestNeighbor : Point -> Map -> WeightedPoint
 -- lowestNeighbor p board =
 --     let
