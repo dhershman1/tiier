@@ -1,6 +1,6 @@
 module Map.Board exposing (Board, Cell, boardToList, generate, posToString, strToTerrain, terrainToClass)
 
-import AI.Pathfinding exposing (Position, findPath, pythagoreanCost, straightLineCost)
+import AI.Pathfinding exposing (Position, planPath, pythagoreanCost, straightLineCost)
 import Dict exposing (Dict)
 import Random
 import Set exposing (Set)
@@ -25,10 +25,8 @@ type alias Cell =
 
 type alias Board =
     { name : String
-    , biome : String
     , id : String
     , grid : Dict ( Int, Int ) Cell
-    , dungeon : Bool
     }
 
 
@@ -44,8 +42,6 @@ fakeBoard : Board
 fakeBoard =
     { name = "Test Board"
     , id = "test123"
-    , biome = "Forest"
-    , dungeon = False
     , grid = Dict.empty
     }
 
@@ -107,7 +103,7 @@ generateCells : Int -> Int -> Board -> Board
 generateCells x y board =
     let
         nextBoard =
-            { board | grid = Dict.insert ( x, y ) (Cell "~" True Water ( x, y )) board.grid }
+            { board | grid = Dict.insert ( x, y ) (Cell "" False Abyss ( x, y )) board.grid }
     in
     if x > 0 then
         generateCells (x - 1) y nextBoard
@@ -182,7 +178,7 @@ connectRooms rooms lastCoord board =
             Maybe.withDefault ( 0, 0 ) (List.head rooms)
 
         path =
-            Maybe.withDefault [] (findPath straightLineCost (movesFrom board) lastCoord coords)
+            Maybe.withDefault [] (planPath straightLineCost (movesFrom board) lastCoord coords)
 
         nextBoard =
             drawPath path board
@@ -213,13 +209,13 @@ planRooms maxRooms ( w1, w2 ) ( h1, h2 ) tilesList board seed =
                 seed
 
         nextBoard =
-            buildBasicRoom ( x, y ) ( clamp 3 34 (x + width), clamp 3 49 (y + height) ) width board
+            buildBasicRoom ( x - 1, y - 1 ) ( clamp 3 34 (x + width), clamp 3 49 (y + height) ) width board
 
         currentRooms =
             List.append tilesList [ ( clamp 3 34 (x + width), clamp 3 49 (y + height) ) ]
     in
     if maxRooms == 0 then
-        connectRooms tilesList ( 4, 2 ) nextBoard
+        connectRooms (List.append tilesList [ ( 30, 47 ) ]) ( 4, 2 ) nextBoard
 
     else
         planRooms (maxRooms - 1) ( w1, w2 ) ( h1, h2 ) currentRooms nextBoard nextSeed
@@ -252,7 +248,7 @@ generate rows cols seed =
         boardWithEnd =
             buildBasicRoom ( 30, 47 ) ( 34, 49 ) 3 (buildBasicRoom ( 0, 0 ) ( 4, 2 ) 3 (generateRow (rows - 1) (cols - 1) fakeBoard))
     in
-    planRooms 30 ( 3, 6 ) ( 3, 6 ) [] boardWithEnd seed
+    planRooms 10 ( 3, 6 ) ( 3, 6 ) [] boardWithEnd seed
 
 
 
