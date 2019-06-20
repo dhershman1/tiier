@@ -1,19 +1,9 @@
-module Map.Board exposing (Board, Cell, Terrain, boardToList, createCell, empty, generate, posToString, terrainToClass)
+module Map.Board exposing (Board, Cell, boardToList, generate, posToString, strToTerrain, terrainToClass)
 
 import AI.Pathfinding exposing (Position, findPath, pythagoreanCost, straightLineCost)
-import Color exposing (Color)
-import Debug exposing (log)
 import Dict exposing (Dict)
-import Messages exposing (Msg)
 import Random
 import Set exposing (Set)
-
-
-type Neighbor
-    = North
-    | South
-    | East
-    | West
 
 
 type Terrain
@@ -39,6 +29,14 @@ type alias Board =
     , id : String
     , grid : Dict ( Int, Int ) Cell
     , dungeon : Bool
+    }
+
+
+type alias MapStats =
+    { width : Int
+    , height : Int
+    , x : Int
+    , y : Int
     }
 
 
@@ -71,11 +69,6 @@ strToTerrain str =
             Abyss
 
 
-createCell : Bool -> String -> String -> ( Int, Int ) -> Cell
-createCell pass char terr pos =
-    Cell char pass (strToTerrain terr) pos
-
-
 terrainToClass : Cell -> String
 terrainToClass { terrain } =
     case terrain of
@@ -103,167 +96,135 @@ posToString ( x, y ) =
     String.fromInt x ++ ", " ++ String.fromInt y
 
 
-posFromString : String -> Maybe ( Int, Int )
-posFromString s =
-    case String.split ", " s of
-        x :: y :: [] ->
-            let
-                newX =
-                    case String.toInt x of
-                        Nothing ->
-                            0
-
-                        Just iX ->
-                            iX
-
-                newY =
-                    case String.toInt y of
-                        Nothing ->
-                            0
-
-                        Just iY ->
-                            iY
-            in
-            Just <| ( newX, newY )
-
-        _ ->
-            Nothing
-
-
-emptyCell : Cell
-emptyCell =
-    { char = ""
-    , passable = False
-    , terrain = Abyss
-    , pos = ( 0, 0 )
-    }
-
-
-empty : Board
-empty =
-    { name = ""
-    , id = ""
-    , biome = ""
-    , grid = Dict.empty
-    , dungeon = False
-    }
-
-
 boardToList : Board -> List Cell
 boardToList { grid } =
     List.map Tuple.second (Dict.toList grid)
 
 
-getTerrain : ( Int, Int ) -> Dict String Cell -> Terrain
-getTerrain pos grid =
-    case Maybe.withDefault emptyCell (Dict.get (posToString pos) grid) of
-        { terrain } ->
-            terrain
-
-
-count : List Terrain -> Terrain -> Int
-count terrList t =
-    List.partition (\lt -> lt == t) terrList
-        |> Tuple.first
-        |> List.length
-
-
-generateOneOf : ( Int, Int ) -> Random.Seed -> ( Cell, Random.Seed )
-generateOneOf pos seed =
-    Random.step
-        (Random.weighted ( 25, Cell "#" False Wall pos )
-            [ ( 15, Cell "~" True Water pos )
-            , ( 50, Cell "." True Floor pos )
-
-            -- , Cell "!" True Forest pos
-            -- , Cell "=" True TownRoad pos
-            -- , Cell "" False Abyss pos
-            ]
-        )
-        seed
-
-
-generateCell : Int -> Int -> List ( Int, Int ) -> Board -> Random.Seed -> ( Board, Random.Seed )
-generateCell x y path board seed =
+{-| Generate all of the floor cells to fill the board
+-}
+generateCells : Int -> Int -> Board -> Board
+generateCells x y board =
     let
-        ( nextCell, nextSeed ) =
-            generateOneOf ( x, y ) seed
-
         nextBoard =
-            if List.member ( x, y ) path then
-                { board | grid = Dict.insert ( x, y ) (Cell "." True Floor ( x, y )) board.grid }
-
-            else
-                -- { board | grid = Dict.insert ( x, y ) (Cell "~" True Water ( x, y )) board.grid }
-                { board | grid = Dict.insert ( x, y ) nextCell board.grid }
+            { board | grid = Dict.insert ( x, y ) (Cell "" False Abyss ( x, y )) board.grid }
     in
     if x > 0 then
-        generateCell (x - 1) y path nextBoard nextSeed
+        generateCells (x - 1) y nextBoard
 
     else
-        ( nextBoard, nextSeed )
+        nextBoard
 
 
-generateRow : Int -> Int -> List ( Int, Int ) -> Board -> Random.Seed -> Board
-generateRow x y path board seed =
+{-| Generate each row of the board
+-}
+generateRow : Int -> Int -> Board -> Board
+generateRow x y board =
     let
-        ( nextBoard, nextSeed ) =
-            generateCell x y path board seed
+        nextBoard =
+            generateCells x y board
     in
     if y > 0 then
-        generateRow x (y - 1) path nextBoard nextSeed
+        generateRow x (y - 1) nextBoard
 
     else
         nextBoard
 
 
-getSize : Random.Seed -> ( Int, Random.Seed )
-getSize seed =
-    Random.step (Random.int 5 10) seed
-
-
-getPos : Int -> Int -> Random.Seed -> ( ( Int, Int ), Random.Seed )
-getPos x y seed =
-    Random.step (Random.pair (Random.int 15 x) (Random.int 15 y)) seed
-
-
-expandRoom : Int -> ( Int, Int ) -> Board -> Board
-expandRoom size ( posX, posY ) board =
-    let
-        newPos =
-            ( posX - 1, posY - 1 )
-
-        nextBoard =
-            { board | grid = Dict.insert newPos (Cell "." True Floor newPos) board.grid }
-    in
-    if size > 0 then
-        expandRoom (size - 1) newPos nextBoard
-
-    else
-        nextBoard
-
-
-generateRooms : Int -> Int -> Int -> Random.Seed -> Board -> Board
-generateRooms x y roomCount seed board =
-    let
-        ( pos, posSeed ) =
-            getPos x y seed
-
-        ( size, nextSeed ) =
-            getSize seed
-
-        nextBoard =
-            { board | grid = Dict.insert pos (Cell "." True Floor pos) board.grid }
-    in
-    if roomCount <= 0 then
-        generateRooms x y (roomCount + 1) nextSeed nextBoard
-
-    else
-        nextBoard
-
-
-{-| The brain behind how the pathfinding algorithm will go about the pathway
+{-| Builds out a basic square room from the top right corner to the bottom right corner and places it on the map
 -}
+buildBasicRoom : ( Int, Int ) -> ( Int, Int ) -> Int -> Board -> Board
+buildBasicRoom coords ( endX, endY ) width board =
+    let
+        currentCell =
+            Maybe.withDefault (Cell "~" True Water coords) (Dict.get coords board.grid)
+
+        nextBoard =
+            { board | grid = Dict.insert coords (Cell "." True Floor coords) board.grid }
+
+        ( nX, nY ) =
+            if Tuple.first coords < endX then
+                ( Tuple.first coords + 1, Tuple.second coords )
+
+            else
+                ( Tuple.first coords - (width + 1), Tuple.second coords + 1 )
+    in
+    if nY > endY then
+        nextBoard
+
+    else
+        buildBasicRoom ( nX, nY ) ( endX, endY ) width nextBoard
+
+
+drawPath : List ( Int, Int ) -> Board -> Board
+drawPath path board =
+    let
+        coord =
+            Maybe.withDefault ( 0, 0 ) (List.head path)
+
+        rest =
+            Maybe.withDefault [] (List.tail path)
+
+        nextBoard =
+            { board | grid = Dict.insert coord (Cell "." True Floor coord) board.grid }
+    in
+    if List.length path == 0 && List.isEmpty rest then
+        nextBoard
+
+    else
+        drawPath rest nextBoard
+
+
+connectRooms : List ( Int, Int ) -> ( Int, Int ) -> Board -> Board
+connectRooms rooms lastCoord board =
+    let
+        coords =
+            Maybe.withDefault ( 0, 0 ) (List.head rooms)
+
+        path =
+            Maybe.withDefault [] (findPath straightLineCost (movesFrom board) lastCoord coords)
+
+        nextBoard =
+            drawPath path board
+
+        rest =
+            Maybe.withDefault [] (List.tail rooms)
+    in
+    if List.isEmpty rest then
+        nextBoard
+
+    else
+        connectRooms rest coords nextBoard
+
+
+{-| It's important to know that most of these hardcoded numbers will probably become dynamic since this will probably be all stored in a database
+-}
+planRooms : Int -> ( Int, Int ) -> ( Int, Int ) -> List ( Int, Int ) -> Board -> Random.Seed -> Board
+planRooms maxRooms ( w1, w2 ) ( h1, h2 ) tilesList board seed =
+    let
+        ( { width, height, x, y }, nextSeed ) =
+            Random.step
+                (Random.map4 MapStats
+                    (Random.int w1 w2)
+                    (Random.int h1 h2)
+                    (Random.int 3 34)
+                    (Random.int 3 49)
+                )
+                seed
+
+        nextBoard =
+            buildBasicRoom ( x - 1, y - 1 ) ( clamp 3 34 (x + width), clamp 3 49 (y + height) ) width board
+
+        currentRooms =
+            List.append tilesList [ ( clamp 3 34 (x + width), clamp 3 49 (y + height) ) ]
+    in
+    if maxRooms == 0 then
+        connectRooms (List.append tilesList [ ( 30, 47 ) ]) ( 4, 2 ) nextBoard
+
+    else
+        planRooms (maxRooms - 1) ( w1, w2 ) ( h1, h2 ) currentRooms nextBoard nextSeed
+
+
 movesFrom : Board -> Position -> Set Position
 movesFrom world ( x, y ) =
     let
@@ -283,14 +244,16 @@ movesFrom world ( x, y ) =
         Set.union (Set.fromList [ ( x + 1, y ), ( x, y + 1 ), ( x - 1, y ), ( x, y - 1 ) ]) results
 
 
-{-| The Board will be pulled from our DB to get its stats like Biome, name, dungeon, etc.
-For now though we can also just fake that. Replace "fakeBoard" with an actual db return
+{-| The primary functionality that will plan out rooms for the board/map and build out based on the information provided
 -}
 generate : Int -> Int -> Random.Seed -> Board
-generate width height seed =
-    -- generateRow (width - 1) (height - 1) fakeBoard seed
+generate rows cols seed =
     let
-        path =
-            Maybe.withDefault [ ( 0, 0 ) ] (findPath straightLineCost (movesFrom fakeBoard) ( 0, 0 ) ( 49, 49 ))
+        boardWithEnd =
+            buildBasicRoom ( 30, 47 ) ( 34, 49 ) 3 (buildBasicRoom ( 0, 0 ) ( 4, 2 ) 3 (generateRow (rows - 1) (cols - 1) fakeBoard))
     in
-    generateRow (width - 1) (height - 1) path fakeBoard seed
+    planRooms 10 ( 3, 6 ) ( 3, 6 ) [] boardWithEnd seed
+
+
+
+-- buildBasicRoom ( 0, 0 ) 3 2 (generateRow (rows - 1) (cols - 1) fakeBoard)
