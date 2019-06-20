@@ -1,4 +1,4 @@
-module AI.Pathfinding exposing (Path, Position, findPath, pythagoreanCost, straightLineCost)
+module AI.Pathfinding exposing (Path, Position, planPath, pythagoreanCost, straightLineCost)
 
 {-| The pathfinding AI is mostly built for building out paths on the map the user can use
 This approach means we can formulate a start, and exit and build multiple paths to those locations
@@ -154,16 +154,6 @@ astar costFn moveFn goal model =
                         Set.foldl (updateCost current) modelWithNeighbours newNeighbours
                 in
                 astar costFn moveFn goal modelWithCosts
-
-
-findPath :
-    (Position -> Position -> Float)
-    -> (Position -> Set Position)
-    -> Position
-    -> Position
-    -> Maybe Path
-findPath =
-    planPath
 
 
 {-| A simple costing algorithm. Think of it as the number of moves a
