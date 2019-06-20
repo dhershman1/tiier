@@ -25,7 +25,7 @@ getColor terrain seed =
             randomRgb ( 87, 121 ) ( 87, 121 ) ( 255, 255 ) seed
 
         _ ->
-            ( "rgb(255, 255, 255)", Random.initialSeed 12 )
+            ( "rgb(0, 0, 0)", Random.initialSeed 12 )
 
 
 renderCell : List Cell -> Random.Seed -> List (Html Msg) -> List (Html Msg)
