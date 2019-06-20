@@ -1,6 +1,5 @@
 port module Update exposing (update)
 
-import AI.Pathfinding exposing (permutations)
 import Debug exposing (log)
 import Dict exposing (Dict)
 import Keyboard exposing (Key(..))
@@ -105,9 +104,6 @@ update msg model =
             let
                 seed =
                     Random.initialSeed <| log "initial seed" <| Time.posixToMillis now
-
-                tmp =
-                    permutations 35 50
             in
             ( { model
                 | randomSeed = seed

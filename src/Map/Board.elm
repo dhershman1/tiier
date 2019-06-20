@@ -182,7 +182,7 @@ connectRooms rooms lastCoord board =
             Maybe.withDefault ( 0, 0 ) (List.head rooms)
 
         path =
-            Maybe.withDefault [] (findPath pythagoreanCost (movesFrom board) lastCoord coords)
+            Maybe.withDefault [] (findPath straightLineCost (movesFrom board) lastCoord coords)
 
         nextBoard =
             drawPath path board

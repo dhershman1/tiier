@@ -1,4 +1,4 @@
-module AI.Pathfinding exposing (Path, Position, findPath, permutations, pythagoreanCost, straightLineCost)
+module AI.Pathfinding exposing (Path, Position, findPath, pythagoreanCost, straightLineCost)
 
 {-| The pathfinding AI is mostly built for building out paths on the map the user can use
 This approach means we can formulate a start, and exit and build multiple paths to those locations
@@ -193,20 +193,3 @@ pythagoreanCost ( x1, y1 ) ( x2, y2 ) =
             toFloat <| abs (y1 - y2)
     in
     abs <| (sqrt 2 * min dx dy) + abs (dy - dx)
-
-
-{-| Counts how many viable paths there are to display
-Really only has a use for debugging
--}
-factorial : Int -> Float -> Float
-factorial n current =
-    if n == 1 then
-        current
-
-    else
-        factorial (n - 1) (toFloat n * current)
-
-
-permutations : Int -> Int -> Int
-permutations x y =
-    Debug.log "Number of permutations" (round (factorial (x + y) 1 / (factorial x 1 * factorial y 1)))
