@@ -6,6 +6,12 @@ import Random
 import Set exposing (Set)
 
 
+{-| TODO:
+- Each room & Path needs to get a wall built around it BEFORE we attach them together with the paths.
+- Transition from a Random point generator for the dungeon into more of a crawl generation for the dungeons
+- Improve the cost calculations for connecting rooms
+- Add Database pulling for dungeon data
+-}
 type Terrain
     = Water
     | ShallowWater
