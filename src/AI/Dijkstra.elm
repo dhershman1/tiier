@@ -4,6 +4,12 @@ import Dict exposing (Dict)
 import Set exposing (Set)
 
 
+{-| The idea is that the Dijkstra Maps Algorithm will ultimately replace the Pathfinding algorithm in the long run
+This algo will work far better for the AI to properly navigate NPCs through the randomly generated Maps and
+structures of Tiier. Though the A\* algorithm may stick around to be used to connect rooms together for each map
+However that may also be unneeded as I plan to move over to a crawl style of map generation instead
+of the random point generation it is using now.
+-}
 type alias Point =
     ( Int, Int )
 
