@@ -1,6 +1,8 @@
 # Tiier
 A game idea written in [Elm](https://elm-lang.org/)
 
+You can also [join our slack group](https://join.slack.com/t/tiier/shared_invite/enQtNjc1NDg0NjkzMTkwLWQ4MGVhNjQwNDg5OTJmYjI2ODA0OTBhMmI5NGM3YzhjOTY3YzA4ZGFiZmJlYzc2MDNhODI0MWUxZTJiNzQzMzQ)
+
 ## Influence/Credits
 
 - [Brogue](https://sites.google.com/site/broguegame/)
