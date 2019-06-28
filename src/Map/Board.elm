@@ -7,10 +7,12 @@ import Set exposing (Set)
 
 
 {-| TODO:
-- Each room & Path needs to get a wall built around it BEFORE we attach them together with the paths.
-- Transition from a Random point generator for the dungeon into more of a crawl generation for the dungeons
-- Improve the cost calculations for connecting rooms
-- Add Database pulling for dungeon data
+
+  - Each room & Path needs to get a wall built around it BEFORE we attach them together with the paths.
+  - Transition from a Random point generator for the dungeon into more of a crawl generation for the dungeons
+  - Improve the cost calculations for connecting rooms
+  - Add Database pulling for dungeon data
+
 -}
 type Terrain
     = Water
@@ -35,9 +37,17 @@ type alias Cell =
     }
 
 
+type alias Room =
+    { sizeX : Int
+    , sizeY : Int
+    , grid : Dict ( Int, Int ) Cell
+    }
+
+
 type alias Board =
     { name : String
     , id : String
+    , rooms : List Room
     , grid : Dict ( Int, Int ) Cell
     }
 
@@ -54,6 +64,7 @@ fakeBoard : Board
 fakeBoard =
     { name = "Test Board"
     , id = "test123"
+    , rooms = []
     , grid = Dict.empty
     }
 
@@ -204,122 +215,17 @@ drawPath path board =
         drawPath rest nextBoard
 
 
-connectRooms : List ( Int, Int ) -> ( Int, Int ) -> Board -> Board
-connectRooms rooms lastCoord board =
-    let
-        coords =
-            Maybe.withDefault ( 0, 0 ) (List.head rooms)
-
-        path =
-            Maybe.withDefault [] (planPath straightLineCost (movesFrom board) lastCoord coords)
-
-        nextBoard =
-            drawPath path board
-
-        rest =
-            Maybe.withDefault [] (List.tail rooms)
-    in
-    if List.isEmpty rest then
-        nextBoard
-
-    else
-        connectRooms rest coords nextBoard
-
-
-{-| It's important to know that most of these hardcoded numbers will probably become dynamic since this will probably be all stored in a database
--}
-planRooms : Int -> ( Int, Int ) -> ( Int, Int ) -> List ( Int, Int ) -> Board -> Random.Seed -> Board
-planRooms maxRooms ( w1, w2 ) ( h1, h2 ) tilesList board seed =
-    let
-        ( { width, height, x, y }, nextSeed ) =
-            Random.step
-                (Random.map4 MapStats
-                    (Random.int w1 w2)
-                    (Random.int h1 h2)
-                    (Random.int 3 34)
-                    (Random.int 3 49)
-                )
-                seed
-
-        nextBoard =
-            buildBasicRoom ( x - 1, y - 1 ) ( clamp 3 34 (x + width), clamp 3 49 (y + height) ) width board
-
-        currentRooms =
-            List.append tilesList [ ( clamp 3 34 (x + width), clamp 3 49 (y + height) ) ]
-    in
-    if maxRooms == 0 then
-        connectRooms (List.append tilesList [ ( 30, 47 ) ]) ( 4, 2 ) nextBoard
-
-    else
-        planRooms (maxRooms - 1) ( w1, w2 ) ( h1, h2 ) currentRooms nextBoard nextSeed
-
-
-movesFrom : Board -> Position -> Set Position
-movesFrom world ( x, y ) =
-    let
-        results =
-            Set.empty
-    in
-    if x == 0 && y == 0 then
-        Set.union (Set.fromList [ ( 1, 0 ), ( 0, 1 ) ]) results
-
-    else if x == 0 then
-        Set.insert ( 1, y ) results
-
-    else if y == 0 then
-        Set.insert ( x, 1 ) results
-
-    else
-        Set.union (Set.fromList [ ( x + 1, y ), ( x, y + 1 ), ( x - 1, y ), ( x, y - 1 ) ]) results
-
-
-{-| Can be used for the Dijkstra Algorithm for path finding, hopefully. This should find the cheapest and passable neighbor for the algo to use.
--}
-lowestNeighbor : Board -> List Point -> { pos : Point, cost : Float }
-lowestNeighbor board neighbors =
-    let
-        cheapestPoint =
-            List.foldl
-                (\a b ->
-                    let
-                        tileA =
-                            Maybe.withDefault (wall a) (Dict.get a board.grid)
-
-                        tileB =
-                            Maybe.withDefault (wall b) (Dict.get b board.grid)
-                    in
-                    if tileA.passable && tileB.passable then
-                        if tileA.cost > tileB.cost then
-                            tileB.pos
-
-                        else
-                            tileA.pos
-
-                    else if tileA.passable then
-                        tileA.pos
-
-                    else
-                        tileB.pos
-                )
-                ( 0, 0 )
-                neighbors
-
-        { pos, cost } =
-            Maybe.withDefault (floor ( 0, 0 )) (Dict.get cheapestPoint board.grid)
-    in
-    { pos = pos, cost = cost }
-
-
 {-| The primary functionality that will plan out rooms for the board/map and build out based on the information provided
 -}
 generate : Int -> Int -> Random.Seed -> Board
 generate rows cols seed =
     let
-        boardWithEnd =
-            buildBasicRoom ( 30, 47 ) ( 34, 49 ) 3 (buildBasicRoom ( 0, 0 ) ( 4, 2 ) 3 (generateRow (rows - 1) (cols - 1) fakeBoard))
+        boardStart =
+            buildBasicRoom ( 0, 0 ) ( 4, 2 ) 3 (generateRow (rows - 1) (cols - 1) fakeBoard)
     in
-    planRooms 10 ( 3, 6 ) ( 3, 6 ) [] boardWithEnd seed
+    boardStart
 
 
 
+-- planRooms 10 ( 3, 6 ) ( 3, 6 ) [] boardWithEnd seed
 -- buildBasicRoom ( 0, 0 ) 3 2 (generateRow (rows - 1) (cols - 1) fakeBoard)
