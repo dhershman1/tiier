@@ -16,11 +16,9 @@ import Set exposing (Set)
 -}
 type Terrain
     = Water
-    | ShallowWater
     | Wall
     | Floor
     | Forest
-    | TownRoad
     | Abyss
 
 
@@ -30,7 +28,6 @@ type alias Point =
 
 type alias Cell =
     { char : String
-    , cost : Float
     , passable : Bool
     , terrain : Terrain
     , pos : ( Int, Int )
@@ -84,9 +81,6 @@ strToTerrain str =
         "forest" ->
             Forest
 
-        "shallow-water" ->
-            ShallowWater
-
         _ ->
             Abyss
 
@@ -106,29 +100,8 @@ terrainToClass { terrain } =
         Forest ->
             "forest"
 
-        TownRoad ->
-            "town-road"
-
-        ShallowWater ->
-            "shallow-water"
-
         Abyss ->
             "abyss"
-
-
-wall : Point -> Cell
-wall pos =
-    Cell "#" (1 / 0) False Wall pos
-
-
-floor : Point -> Cell
-floor pos =
-    Cell "." 1 True Floor pos
-
-
-water : Point -> Cell
-water pos =
-    Cell "~" 1 True Water pos
 
 
 posToString : ( Int, Int ) -> String
@@ -147,7 +120,7 @@ generateCells : Int -> Int -> Board -> Board
 generateCells x y board =
     let
         nextBoard =
-            { board | grid = Dict.insert ( x, y ) (Cell "" (1 / 0) False Abyss ( x, y )) board.grid }
+            { board | grid = Dict.insert ( x, y ) (Cell "~" False Water ( x, y )) board.grid }
     in
     if x > 0 then
         generateCells (x - 1) y nextBoard
@@ -177,10 +150,10 @@ buildBasicRoom : ( Int, Int ) -> ( Int, Int ) -> Int -> Board -> Board
 buildBasicRoom coords ( endX, endY ) width board =
     let
         currentCell =
-            Maybe.withDefault (water coords) (Dict.get coords board.grid)
+            Maybe.withDefault (Cell "~" True Water coords) (Dict.get coords board.grid)
 
         nextBoard =
-            { board | grid = Dict.insert coords (floor coords) board.grid }
+            { board | grid = Dict.insert coords (Cell "." True Floor coords) board.grid }
 
         ( nX, nY ) =
             if Tuple.first coords < endX then
@@ -206,7 +179,7 @@ drawPath path board =
             Maybe.withDefault [] (List.tail path)
 
         nextBoard =
-            { board | grid = Dict.insert coord (floor coord) board.grid }
+            { board | grid = Dict.insert coord (Cell "." True Floor coord) board.grid }
     in
     if List.length path == 0 && List.isEmpty rest then
         nextBoard
@@ -219,11 +192,7 @@ drawPath path board =
 -}
 generate : Int -> Int -> Random.Seed -> Board
 generate rows cols seed =
-    let
-        boardStart =
-            buildBasicRoom ( 0, 0 ) ( 4, 2 ) 3 (generateRow (rows - 1) (cols - 1) fakeBoard)
-    in
-    boardStart
+    buildBasicRoom ( 1, 1 ) ( 5, 3 ) 3 (generateRow (rows - 1) (cols - 1) fakeBoard)
 
 
 
