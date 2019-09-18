@@ -38,7 +38,7 @@ renderCell cells seed els =
             Maybe.withDefault [] (List.tail cells)
 
         current =
-            Maybe.withDefault (Cell "." True (strToTerrain "floor") ( 0, 0 )) (List.head cells)
+            Maybe.withDefault (Cell "." 1 True (strToTerrain "floor") ( 0, 0 )) (List.head cells)
 
         ( color, nextSeed ) =
             getColor (terrainToClass current) seed
