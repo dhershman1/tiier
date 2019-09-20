@@ -51,8 +51,7 @@ header {
   color: var(--bg);
 }
 
-.gird__cell--wall {
-  background-color: #e9e9e9;
+.grid__cell--wall {
   color: #686868;
 }
 

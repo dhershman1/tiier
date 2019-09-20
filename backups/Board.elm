@@ -16,11 +16,9 @@ import Set exposing (Set)
 -}
 type Terrain
     = Water
-    | ShallowWater
     | Wall
     | Floor
     | Forest
-    | TownRoad
     | Abyss
 
 
@@ -37,9 +35,17 @@ type alias Cell =
     }
 
 
+type alias Room =
+    { sizeX : Int
+    , sizeY : Int
+    , grid : Dict ( Int, Int ) Cell
+    }
+
+
 type alias Board =
     { name : String
     , id : String
+    , rooms : List Room
     , grid : Dict ( Int, Int ) Cell
     }
 
@@ -56,6 +62,7 @@ fakeBoard : Board
 fakeBoard =
     { name = "Test Board"
     , id = "test123"
+    , rooms = []
     , grid = Dict.empty
     }
 
@@ -75,9 +82,6 @@ strToTerrain str =
         "forest" ->
             Forest
 
-        "shallow-water" ->
-            ShallowWater
-
         _ ->
             Abyss
 
@@ -96,12 +100,6 @@ terrainToClass { terrain } =
 
         Forest ->
             "forest"
-
-        TownRoad ->
-            "town-road"
-
-        ShallowWater ->
-            "shallow-water"
 
         Abyss ->
             "abyss"
@@ -321,7 +319,3 @@ generate rows cols seed =
             buildBasicRoom ( 30, 47 ) ( 34, 49 ) 3 (buildBasicRoom ( 0, 0 ) ( 4, 2 ) 3 (generateRow (rows - 1) (cols - 1) fakeBoard))
     in
     planRooms 10 ( 3, 6 ) ( 3, 6 ) [] boardWithEnd seed
-
-
-
--- buildBasicRoom ( 0, 0 ) 3 2 (generateRow (rows - 1) (cols - 1) fakeBoard)

@@ -4,7 +4,7 @@ import Color exposing (randomRgb)
 import Html exposing (Html, aside, button, div, footer, h1, header, main_, span, text)
 import Html.Attributes exposing (attribute, class, classList, href, id, style, title)
 import Html.Events exposing (onClick)
-import Map.Board exposing (Cell, boardToList, generate, posToString, strToTerrain, terrainToClass)
+import Map.Board exposing (Cell, boardToList, generate, posToString, strToTerrain, terrainToStr)
 import Messages exposing (Msg(..))
 import Model exposing (Model)
 import Random
@@ -41,13 +41,13 @@ renderCell cells seed els =
             Maybe.withDefault (Cell "." 1 True (strToTerrain "floor") ( 0, 0 )) (List.head cells)
 
         ( color, nextSeed ) =
-            getColor (terrainToClass current) seed
+            getColor (terrainToStr current) seed
     in
     if List.length cells == 0 && List.isEmpty rest then
         els
 
     else
-        renderCell rest nextSeed (List.append els [ span [ class ("grid__cell " ++ terrainToClass current), style "background-color" color, title (posToString current.pos) ] [ text current.char ] ])
+        renderCell rest nextSeed (List.append els [ span [ class ("grid__cell grid__cell--" ++ terrainToStr current), style "background-color" color, title (posToString current.pos) ] [ text current.char ] ])
 
 
 init : Model -> List (Html Msg)
