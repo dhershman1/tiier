@@ -21,9 +21,8 @@ type alias Cell =
 
 
 type alias Room =
-    { sizeX : Int
-    , sizeY : Int
-    , grid : Dict ( Int, Int ) Cell
+    { start : Point
+    , end : Point
     }
 
 
@@ -126,7 +125,7 @@ buildBasicRoom coords ( endX, endY ) width board =
                 ( Tuple.first coords - (width + 1), Tuple.second coords + 1 )
     in
     if nY > endY then
-        nextBoard
+        { nextBoard | rooms = { start = coords, end = ( endX, endY ) } :: nextBoard.rooms }
 
     else
         buildBasicRoom ( nX, nY ) ( endX, endY ) width nextBoard
@@ -151,20 +150,34 @@ drawPath path board =
         drawPath rest nextBoard
 
 
+findClosestRoom : List Point -> Point -> Point
+findClosestRoom rooms coords =
+    List.foldr
+        (\( x, y ) ( currX, currY ) ->
+            if x > currX && y > currY then
+                ( currX, currY )
+
+            else
+                ( x, y )
+        )
+        coords
+        rooms
+
+
 connectRooms : List ( Int, Int ) -> ( Int, Int ) -> Board -> Board
 connectRooms rooms lastCoord board =
     let
         coords =
             Maybe.withDefault ( 0, 0 ) (List.head rooms)
 
+        rest =
+            Maybe.withDefault [] (List.tail rooms)
+
         path =
-            Maybe.withDefault [] (planPath straightLineCost (movesFrom board) lastCoord coords)
+            Maybe.withDefault [] (planPath pythagoreanCost (movesFrom board) lastCoord (findClosestRoom rooms coords))
 
         nextBoard =
             drawPath path board
-
-        rest =
-            Maybe.withDefault [] (List.tail rooms)
     in
     if List.isEmpty rest then
         nextBoard
