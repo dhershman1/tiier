@@ -27,11 +27,15 @@ type Room
         }
 
 
+{-| Generates an integer from the set of provided coords, this is for the initial seed generation
+-}
 combineCoords : Point -> Point -> Int
 combineCoords ( x, y ) ( x2, y2 ) =
     x + y + x2 + y2
 
 
+{-| Create an empty room
+-}
 empty : Room
 empty =
     Room
