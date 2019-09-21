@@ -1,4 +1,4 @@
-module Map.Terrain exposing (Terrain(..), empty, strToTerrain, terrainToStr)
+module Map.Terrain exposing (Terrain(..), empty, fromString, toString)
 
 
 type Terrain
@@ -9,8 +9,8 @@ type Terrain
     | Abyss
 
 
-strToTerrain : String -> Terrain
-strToTerrain str =
+fromString : String -> Terrain
+fromString str =
     case str of
         "wall" ->
             Wall
@@ -28,8 +28,8 @@ strToTerrain str =
             Abyss
 
 
-terrainToStr : Terrain -> String
-terrainToStr terrain =
+toString : Terrain -> String
+toString terrain =
     case terrain of
         Wall ->
             "wall"

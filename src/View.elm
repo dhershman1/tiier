@@ -5,7 +5,7 @@ import Html exposing (Html, aside, button, div, footer, h1, header, main_, span,
 import Html.Attributes exposing (attribute, class, classList, href, id, style, title)
 import Html.Events exposing (onClick)
 import Map.Board exposing (Cell, boardToList, generate, posToString)
-import Map.Terrain exposing (strToTerrain, terrainToStr)
+import Map.Terrain as Terrain
 import Messages exposing (Msg(..))
 import Model exposing (Model)
 import Random
@@ -39,10 +39,10 @@ renderCell cells seed els =
             Maybe.withDefault [] (List.tail cells)
 
         current =
-            Maybe.withDefault (Cell "." 1 True (strToTerrain "floor") ( 0, 0 )) (List.head cells)
+            Maybe.withDefault (Cell "." 1 True (Terrain.fromString "floor") ( 0, 0 )) (List.head cells)
 
         ( color, nextSeed ) =
-            getColor (terrainToStr current.terrain) seed
+            getColor (Terrain.toString current.terrain) seed
     in
     if List.length cells == 0 && List.isEmpty rest then
         els
@@ -51,7 +51,7 @@ renderCell cells seed els =
         renderCell rest
             nextSeed
             (List.append els
-                [ span [ class ("grid__cell grid__cell--" ++ terrainToStr current.terrain), style "background-color" color, title (posToString current.pos) ] [ text current.char ]
+                [ span [ class ("grid__cell grid__cell--" ++ Terrain.toString current.terrain), style "background-color" color, title (posToString current.pos) ] [ text current.char ]
                 ]
             )
 
