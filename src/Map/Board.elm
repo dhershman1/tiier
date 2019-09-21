@@ -1,16 +1,9 @@
-module Map.Board exposing (Board, Cell, boardToList, generate, posToString, strToTerrain, terrainToStr)
+module Map.Board exposing (Board, Cell, boardToList, generate, posToString)
 
 import AI.Pathfinding exposing (Position, planPath, pythagoreanCost, straightLineCost)
 import Dict exposing (Dict)
+import Map.Terrain as Terrain exposing (Terrain)
 import Random
-
-
-type Terrain
-    = Water
-    | Wall
-    | Floor
-    | Forest
-    | Abyss
 
 
 type alias Point =
@@ -49,44 +42,6 @@ fakeBoard =
     }
 
 
-strToTerrain : String -> Terrain
-strToTerrain str =
-    case str of
-        "wall" ->
-            Wall
-
-        "water" ->
-            Water
-
-        "floor" ->
-            Floor
-
-        "forest" ->
-            Forest
-
-        _ ->
-            Abyss
-
-
-terrainToStr : Cell -> String
-terrainToStr { terrain } =
-    case terrain of
-        Wall ->
-            "wall"
-
-        Water ->
-            "water"
-
-        Floor ->
-            "floor"
-
-        Forest ->
-            "forest"
-
-        Abyss ->
-            "abyss"
-
-
 posToString : ( Int, Int ) -> String
 posToString ( x, y ) =
     String.fromInt x ++ ", " ++ String.fromInt y
@@ -101,10 +56,10 @@ buildBasicRoom : ( Int, Int ) -> ( Int, Int ) -> Int -> Board -> Board
 buildBasicRoom coords ( endX, endY ) width board =
     let
         currentCell =
-            Maybe.withDefault (Cell "~" 1 True Water coords) (Dict.get coords board.grid)
+            Maybe.withDefault (Cell "~" 1 True Terrain.Water coords) (Dict.get coords board.grid)
 
         nextBoard =
-            { board | grid = Dict.insert coords (Cell "." 1 True Floor coords) board.grid }
+            { board | grid = Dict.insert coords (Cell "." 1 True Terrain.Floor coords) board.grid }
 
         ( nX, nY ) =
             if Tuple.first coords < endX then
@@ -124,7 +79,7 @@ generateCells : Int -> Int -> Board -> Board
 generateCells x y board =
     let
         nextBoard =
-            { board | grid = Dict.insert ( x, y ) (Cell "#" 1 False Wall ( x, y )) board.grid }
+            { board | grid = Dict.insert ( x, y ) (Cell "#" 1 False Terrain.Wall ( x, y )) board.grid }
     in
     if x > 0 then
         generateCells (x - 1) y nextBoard
