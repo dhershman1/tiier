@@ -253,8 +253,8 @@ connectRooms rooms lastCoord board =
 
 {-| It's important to know that most of these hardcoded numbers will probably become dynamic since this will probably be all stored in a database
 -}
-planRooms : Int -> Point -> Point -> List Point -> Board -> Random.Seed -> Board
-planRooms maxRooms ( w1, w2 ) ( h1, h2 ) tilesList board seed =
+planRooms : Int -> Point -> Point -> List Point -> Random.Seed -> Board -> Board
+planRooms roomsLeft ( w1, w2 ) ( h1, h2 ) tilesList seed board =
     let
         ( { width, height, x, y }, nextSeed ) =
             Random.step
@@ -272,11 +272,11 @@ planRooms maxRooms ( w1, w2 ) ( h1, h2 ) tilesList board seed =
         currentRooms =
             List.append tilesList [ ( clamp 3 34 (x + width), clamp 3 49 (y + height) ) ]
     in
-    if maxRooms == 0 then
-        connectRooms (List.append tilesList [ ( 30, 47 ) ]) ( 4, 2 ) nextBoard
+    if roomsLeft == 0 then
+        connectRooms tilesList ( 4, 2 ) nextBoard
 
     else
-        planRooms (maxRooms - 1) ( w1, w2 ) ( h1, h2 ) currentRooms nextBoard nextSeed
+        planRooms (roomsLeft - 1) ( w1, w2 ) ( h1, h2 ) currentRooms nextSeed nextBoard
 
 
 movesFrom : Board -> Position -> Set Position
@@ -339,8 +339,19 @@ lowestNeighbor board neighbors =
 -}
 generate : Int -> Int -> Random.Seed -> Board
 generate rows cols seed =
-    let
-        boardWithEnd =
-            buildBasicRoom ( 1, 1 ) ( 5, 3 ) 3 <| generateRow (rows - 1) (cols - 1) fakeBoard
-    in
-    buildWalls ( 34, 49 ) <| planRooms 15 ( 3, 6 ) ( 3, 6 ) [] boardWithEnd seed
+    generateRow (rows - 1) (cols - 1) fakeBoard
+        -- Build And Fill Map with blank tiles
+        |> buildBasicRoom ( 1, 1 ) ( 5, 3 ) 3
+        -- Build the starting room
+        |> planRooms 15 ( 3, 6 ) ( 3, 6 ) [] seed
+        -- Build out the rest of the dungeon rooms
+        |> buildWalls ( 34, 49 )
+
+
+
+-- Wrap the dungeon within walls
+-- let
+--     boardWithEnd =
+--         buildBasicRoom ( 1, 1 ) ( 5, 3 ) 3 <| generateRow (rows - 1) (cols - 1) fakeBoard
+-- in
+-- buildWalls ( 34, 49 ) <| planRooms 15 ( 3, 6 ) ( 3, 6 ) [] boardWithEnd seed
