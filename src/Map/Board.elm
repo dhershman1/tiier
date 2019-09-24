@@ -56,21 +56,6 @@ fakeBoard =
     }
 
 
-wall : Point -> Cell
-wall pos =
-    Cell "#" (1 / 0) False Tile.Wall pos
-
-
-floor : Point -> Cell
-floor pos =
-    Cell "." 1 True Tile.Floor pos
-
-
-water : Point -> Cell
-water pos =
-    Cell "~" 1 True Tile.Water pos
-
-
 posToString : Point -> String
 posToString ( x, y ) =
     String.fromInt x ++ ", " ++ String.fromInt y
@@ -206,7 +191,7 @@ drawPath path board =
             Maybe.withDefault [] (List.tail path)
 
         nextBoard =
-            { board | grid = Dict.insert coord (floor coord) board.grid }
+            { board | grid = Dict.insert coord (Tile.floor coord) board.grid }
     in
     if List.length path == 0 && List.isEmpty rest then
         nextBoard
@@ -308,10 +293,10 @@ lowestNeighbor board neighbors =
                 (\a b ->
                     let
                         tileA =
-                            Maybe.withDefault (wall a) (Dict.get a board.grid)
+                            Maybe.withDefault (Tile.wall a) (Dict.get a board.grid)
 
                         tileB =
-                            Maybe.withDefault (wall b) (Dict.get b board.grid)
+                            Maybe.withDefault (Tile.wall b) (Dict.get b board.grid)
                     in
                     if tileA.passable && tileB.passable then
                         if tileA.cost > tileB.cost then
@@ -330,7 +315,7 @@ lowestNeighbor board neighbors =
                 neighbors
 
         { pos, cost } =
-            Maybe.withDefault (floor ( 1, 1 )) (Dict.get cheapestPoint board.grid)
+            Maybe.withDefault (Tile.floor ( 1, 1 )) (Dict.get cheapestPoint board.grid)
     in
     { pos = pos, cost = cost }
 
