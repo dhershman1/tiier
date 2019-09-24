@@ -142,7 +142,7 @@ placeWall ( x, y ) board =
                 , getCell ( x - 1, y + 1 ) board
                 ]
     in
-    if currCell.terrain /= Tile.Abyss || points < 3 then
+    if currCell.terrain /= Tile.Abyss || points < 4 then
         False
 
     else
@@ -255,16 +255,16 @@ planRooms roomsLeft ( w1, w2 ) ( h1, h2 ) tilesList seed board =
                 (Random.map4 MapStats
                     (Random.int w1 w2)
                     (Random.int h1 h2)
-                    (Random.int 3 34)
-                    (Random.int 3 49)
+                    (Random.int 3 33)
+                    (Random.int 3 48)
                 )
                 seed
 
         nextBoard =
-            buildBasicRoom ( x - 1, y - 1 ) ( clamp 3 34 (x + width), clamp 3 49 (y + height) ) width board
+            buildBasicRoom ( x - 1, y - 1 ) ( clamp 3 33 (x + width), clamp 3 48 (y + height) ) width board
 
         currentRooms =
-            List.append tilesList [ ( clamp 3 34 (x + width), clamp 3 49 (y + height) ) ]
+            List.append tilesList [ ( clamp 3 33 (x + width), clamp 3 48 (y + height) ) ]
     in
     if roomsLeft == 0 then
         connectRooms tilesList ( 4, 2 ) nextBoard
