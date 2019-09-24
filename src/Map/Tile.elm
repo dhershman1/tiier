@@ -1,15 +1,17 @@
-module Map.Terrain exposing (Terrain(..), empty, fromString, toString)
+module Map.Tile exposing (Tile(..), empty, fromString, toString)
 
 
-type Terrain
+type Tile
     = Water
     | Wall
     | Floor
     | Forest
+    | Door
+    | IronDoor
     | Abyss
 
 
-fromString : String -> Terrain
+fromString : String -> Tile
 fromString str =
     case str of
         "wall" ->
@@ -24,13 +26,19 @@ fromString str =
         "forest" ->
             Forest
 
+        "door" ->
+            Door
+
+        "iron-door" ->
+            IronDoor
+
         _ ->
             Abyss
 
 
-toString : Terrain -> String
-toString terrain =
-    case terrain of
+toString : Tile -> String
+toString tile =
+    case tile of
         Wall ->
             "wall"
 
@@ -43,10 +51,16 @@ toString terrain =
         Forest ->
             "forest"
 
+        Door ->
+            "door"
+
+        IronDoor ->
+            "iron-door"
+
         Abyss ->
             "abyss"
 
 
-empty : Terrain
+empty : Tile
 empty =
     Abyss
