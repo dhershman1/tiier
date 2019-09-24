@@ -3,6 +3,7 @@ module Map.Board exposing (Board, Cell, boardToList, generate, posToString)
 import AI.Pathfinding exposing (Position, planPath, pythagoreanCost, straightLineCost)
 import Debug exposing (log)
 import Dict exposing (Dict)
+import Map.Room as Room exposing (Room)
 import Map.Tile as Tile exposing (Tile)
 import Random
 import Set exposing (Set)
@@ -27,12 +28,6 @@ type alias Cell =
     , passable : Bool
     , terrain : Tile
     , pos : Point
-    }
-
-
-type alias Room =
-    { start : Point
-    , end : Point
     }
 
 
@@ -193,26 +188,12 @@ buildWalls ( x, y ) board =
 {-| Builds out a basic square room from the top right corner to the bottom right corner and places it on the map
 -}
 buildBasicRoom : Point -> Point -> Int -> Board -> Board
-buildBasicRoom coords ( endX, endY ) width board =
+buildBasicRoom coords end width board =
     let
-        currentCell =
-            Maybe.withDefault (water coords) (Dict.get coords board.grid)
-
-        nextBoard =
-            { board | grid = Dict.insert coords (floor coords) board.grid }
-
-        ( nX, nY ) =
-            if Tuple.first coords < endX then
-                ( Tuple.first coords + 1, Tuple.second coords )
-
-            else
-                ( Tuple.first coords - (width + 1), Tuple.second coords + 1 )
+        room =
+            Room.basicRoom coords end width [] Room.empty
     in
-    if nY > endY then
-        { nextBoard | rooms = { start = coords, end = ( endX, endY ) } :: nextBoard.rooms }
-
-    else
-        buildBasicRoom ( nX, nY ) ( endX, endY ) width nextBoard
+    { board | grid = Dict.union room.grid board.grid }
 
 
 drawPath : List Point -> Board -> Board
@@ -360,6 +341,6 @@ generate : Int -> Int -> Random.Seed -> Board
 generate rows cols seed =
     let
         boardWithEnd =
-            buildBasicRoom ( 1, 1 ) ( 5, 3 ) 3 (generateRow (rows - 1) (cols - 1) fakeBoard)
+            buildBasicRoom ( 1, 1 ) ( 5, 3 ) 3 <| generateRow (rows - 1) (cols - 1) fakeBoard
     in
-    buildWalls ( 34, 49 ) (planRooms 15 ( 3, 6 ) ( 3, 6 ) [] boardWithEnd seed)
+    buildWalls ( 34, 49 ) <| planRooms 15 ( 3, 6 ) ( 3, 6 ) [] boardWithEnd seed
