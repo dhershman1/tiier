@@ -47,6 +47,15 @@ type alias MapStats =
     }
 
 
+empty : Board
+empty =
+    { name = ""
+    , id = ""
+    , rooms = []
+    , grid = Dict.empty
+    }
+
+
 fakeBoard : Board
 fakeBoard =
     { name = "Test Board"
@@ -332,11 +341,3 @@ generate rows cols seed =
         |> planRooms 15 ( 3, 6 ) ( 3, 6 ) [] seed
         -- Wrap the dungeon within walls
         |> buildWalls ( 34, 49 )
-
-
-
--- let
---     boardWithEnd =
---         buildBasicRoom ( 1, 1 ) ( 5, 3 ) 3 <| generateRow (rows - 1) (cols - 1) fakeBoard
--- in
--- buildWalls ( 34, 49 ) <| planRooms 15 ( 3, 6 ) ( 3, 6 ) [] boardWithEnd seed
