@@ -26,6 +26,15 @@ header {
   margin-bottom: 0.3rem;
 }
 
+header > h1 {
+  display: inline-block;
+  margin-right: 0.75rem;
+}
+
+header p {
+  display: inline-block;
+}
+
 .details {
   grid-area: aside;
   width: 100%;
