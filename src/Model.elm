@@ -86,6 +86,7 @@ type alias Model =
     , difficulty : Difficulty
     , position : ( Int, Int )
     , randomSeed : Seed
+    , initialInt : Int
     , loadedBoards : Dict String Seed
     , board : Board
     }
@@ -98,6 +99,7 @@ initial =
     , state = Stopped
     , difficulty = Easy
     , position = ( 0, 0 )
+    , initialInt = 0
     , randomSeed = Random.initialSeed 0
     , loadedBoards = Dict.empty
     , board = Map.Board.generate 50 50 (Random.initialSeed 0)

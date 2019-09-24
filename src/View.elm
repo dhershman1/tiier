@@ -66,6 +66,7 @@ view model =
     main_ [ class "tiier" ]
         [ header []
             [ h1 [] [ text "Tiier" ]
+            , p [] [ text "Map Seed: ", text (String.fromInt model.initialInt) ]
             ]
         , aside [ class "details" ]
             [ span [ class "location" ] [ text "Location: " ]

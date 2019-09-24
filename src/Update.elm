@@ -102,11 +102,15 @@ update msg model =
 
         InitRandom now ->
             let
+                time =
+                    Time.posixToMillis now
+
                 seed =
-                    Random.initialSeed <| log "initial seed" <| Time.posixToMillis now
+                    Random.initialSeed <| log "initial seed" <| time
             in
             ( { model
                 | randomSeed = seed
+                , initialInt = time
                 , board = Map.Board.generate 35 50 seed
               }
             , Cmd.none
