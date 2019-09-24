@@ -339,17 +339,17 @@ lowestNeighbor board neighbors =
 -}
 generate : Int -> Int -> Random.Seed -> Board
 generate rows cols seed =
+    -- Build And Fill Map with blank tiles
     generateRow (rows - 1) (cols - 1) fakeBoard
-        -- Build And Fill Map with blank tiles
-        |> buildBasicRoom ( 1, 1 ) ( 5, 3 ) 3
         -- Build the starting room
-        |> planRooms 15 ( 3, 6 ) ( 3, 6 ) [] seed
+        |> buildBasicRoom ( 1, 1 ) ( 5, 3 ) 3
         -- Build out the rest of the dungeon rooms
+        |> planRooms 15 ( 3, 6 ) ( 3, 6 ) [] seed
+        -- Wrap the dungeon within walls
         |> buildWalls ( 34, 49 )
 
 
 
--- Wrap the dungeon within walls
 -- let
 --     boardWithEnd =
 --         buildBasicRoom ( 1, 1 ) ( 5, 3 ) 3 <| generateRow (rows - 1) (cols - 1) fakeBoard
