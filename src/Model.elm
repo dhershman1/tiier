@@ -102,7 +102,7 @@ initial =
     , initialInt = 0
     , randomSeed = Random.initialSeed 0
     , loadedBoards = Dict.empty
-    , board = Map.Board.generate 50 50 (Random.initialSeed 0)
+    , board = Map.Board.empty
     }
 
 

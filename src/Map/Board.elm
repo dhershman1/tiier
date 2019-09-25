@@ -1,4 +1,4 @@
-module Map.Board exposing (Board, Cell, boardToList, generate, posToString)
+module Map.Board exposing (Board, Cell, boardToList, empty, generate, posToString)
 
 import AI.Pathfinding exposing (Position, planPath, pythagoreanCost, straightLineCost)
 import Debug exposing (log)
@@ -81,7 +81,7 @@ generateCells : Int -> Int -> Board -> Board
 generateCells x y board =
     let
         nextBoard =
-            { board | grid = Dict.insert ( x, y ) (Cell "" (1 / 0) False Tile.Abyss ( x, y )) board.grid }
+            { board | grid = Dict.insert ( x, y ) (Tile.abyss ( x, y )) board.grid }
     in
     if x > 0 then
         generateCells (x - 1) y nextBoard
@@ -107,7 +107,7 @@ generateRow x y board =
 
 getCell : Point -> Board -> Cell
 getCell coords board =
-    Maybe.withDefault (Cell "" (0 / 1) False Tile.Abyss coords) (Dict.get coords board.grid)
+    Maybe.withDefault (Tile.abyss coords) (Dict.get coords board.grid)
 
 
 {-| Simple algo built to determine if a wall should be placed or not
@@ -182,31 +182,30 @@ buildWalls ( x, y ) board =
 {-| Builds out a basic square room from the top right corner to the bottom right corner and places it on the map
 -}
 buildBasicRoom : Point -> Point -> Int -> Board -> Board
-buildBasicRoom coords end width board =
+buildBasicRoom start end width board =
     let
         room =
-            Room.basicRoom coords end width [] Room.empty
+            Room.basicRoom start end width [] (Room.create start end)
     in
     { board | grid = Dict.union room.grid board.grid }
 
 
 drawPath : List Point -> Board -> Board
 drawPath path board =
-    let
-        coord =
-            Maybe.withDefault ( 1, 1 ) (List.head path)
+    case path of
+        coord :: rest ->
+            let
+                nextBoard =
+                    { board | grid = Dict.insert coord (Tile.floor coord) board.grid }
+            in
+            if List.length path == 0 && List.isEmpty rest then
+                nextBoard
 
-        rest =
-            Maybe.withDefault [] (List.tail path)
+            else
+                drawPath rest nextBoard
 
-        nextBoard =
-            { board | grid = Dict.insert coord (Tile.floor coord) board.grid }
-    in
-    if List.length path == 0 && List.isEmpty rest then
-        nextBoard
-
-    else
-        drawPath rest nextBoard
+        [] ->
+            board
 
 
 findClosestRoom : List Point -> Point -> Point
@@ -245,6 +244,32 @@ connectRooms rooms lastCoord board =
         connectRooms rest coords nextBoard
 
 
+{-| Crawls through the dungeon building it out as it goes
+-}
+crawlBuild : Board -> Int -> Point -> Board
+crawlBuild board roomsLeft currPos =
+    fakeBoard
+
+
+placeStartRoom : Point -> Point -> Random.Seed -> Board -> Board
+placeStartRoom ( w1, w2 ) ( h1, h2 ) seed board =
+    let
+        ( { width, height, x, y }, nextSeed ) =
+            Random.step
+                (Random.map4 MapStats
+                    (Random.int w1 w2)
+                    (Random.int h1 h2)
+                    (Random.int 3 33)
+                    (Random.int 3 48)
+                )
+                seed
+
+        nextBoard =
+            buildBasicRoom ( x - 1, y - 1 ) ( clamp 3 33 (x + width), clamp 3 48 (y + height) ) width board
+    in
+    nextBoard
+
+
 {-| It's important to know that most of these hardcoded numbers will probably become dynamic since this will probably be all stored in a database
 -}
 planRooms : Int -> Point -> Point -> List Point -> Random.Seed -> Board -> Board
@@ -267,7 +292,7 @@ planRooms roomsLeft ( w1, w2 ) ( h1, h2 ) tilesList seed board =
             List.append tilesList [ ( clamp 3 33 (x + width), clamp 3 48 (y + height) ) ]
     in
     if roomsLeft == 0 then
-        connectRooms tilesList ( 4, 2 ) nextBoard
+        connectRooms tilesList ( x - 1, y - 1 ) nextBoard
 
     else
         planRooms (roomsLeft - 1) ( w1, w2 ) ( h1, h2 ) currentRooms nextSeed nextBoard
@@ -324,7 +349,7 @@ lowestNeighbor board neighbors =
                 neighbors
 
         { pos, cost } =
-            Maybe.withDefault (Tile.floor ( 1, 1 )) (Dict.get cheapestPoint board.grid)
+            Maybe.withDefault (Tile.abyss ( 1, 1 )) (Dict.get cheapestPoint board.grid)
     in
     { pos = pos, cost = cost }
 
@@ -336,7 +361,7 @@ generate rows cols seed =
     -- Build And Fill Map with blank tiles
     generateRow (rows - 1) (cols - 1) fakeBoard
         -- Build the starting room
-        |> buildBasicRoom ( 1, 1 ) ( 5, 3 ) 3
+        |> placeStartRoom ( 3, 6 ) ( 3, 6 ) seed
         -- Build out the rest of the dungeon rooms
         |> planRooms 15 ( 3, 6 ) ( 3, 6 ) [] seed
         -- Wrap the dungeon within walls

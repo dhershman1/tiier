@@ -1,11 +1,20 @@
-module Map.Room exposing (Room, basicRoom, empty, polyRoom)
+module Map.Room exposing (Room, basicRoom, create, empty, polyRoom)
 
+import Debug exposing (log)
 import Dict exposing (Dict)
 import Map.Tile as Tile exposing (Tile)
+import Random
 
 
 type alias Point =
     ( Int, Int )
+
+
+type Direction
+    = North
+    | South
+    | East
+    | West
 
 
 type alias Feature =
@@ -31,6 +40,96 @@ empty =
     , features = Dict.empty
     , grid = Dict.empty
     }
+
+
+create : Point -> Point -> Room
+create start end =
+    { start = start
+    , end = end
+    , entrence = ( 0, 0 )
+    , features = Dict.empty
+    , grid = Dict.empty
+    }
+
+
+area : Room -> ( Point, Point )
+area { start, end } =
+    let
+        ( startX, startY ) =
+            start
+
+        ( endX, endY ) =
+            end
+    in
+    ( ( startX, endX ), ( startY, endY ) )
+
+
+findCorners : Room -> { topLeft : Point, topRight : Point, bottomLeft : Point, bottomRight : Point }
+findCorners { start, end } =
+    let
+        ( startX, startY ) =
+            log "start" start
+
+        ( endX, endY ) =
+            log "end" end
+    in
+    { topLeft = ( startX + 1, startY + 1 )
+    , topRight = ( endX + 1 - startX, startY + 1 )
+    , bottomLeft = ( startX + 1, endY + 1 - startY )
+    , bottomRight = ( endX + 1, endY + 1 )
+    }
+
+
+{-| Picks a random wall and places a door there
+-}
+placeDoor : Random.Seed -> Room -> Room
+placeDoor seed room =
+    let
+        { topLeft, topRight, bottomLeft, bottomRight } =
+            log "Corners" <| findCorners room
+
+        ( startX, startY ) =
+            room.start
+
+        ( endX, endY ) =
+            room.end
+
+        ( direction, newSeed ) =
+            Random.step (Random.uniform North [ South, East, West ]) seed
+    in
+    case direction of
+        North ->
+            let
+                ( x, _ ) =
+                    Random.step (Random.int (Tuple.second topLeft) (Tuple.second topRight)) newSeed
+            in
+            { room | grid = Dict.insert ( x, startY ) (Tile.door ( x, startY )) room.grid }
+
+        South ->
+            let
+                ( x, _ ) =
+                    Random.step (Random.int (Tuple.second bottomLeft) (Tuple.second bottomRight)) newSeed
+            in
+            { room | grid = Dict.insert ( x, endY ) (Tile.door ( x, endY )) room.grid }
+
+        East ->
+            let
+                ( y, _ ) =
+                    Random.step (Random.int (Tuple.first topRight) (Tuple.first bottomRight)) newSeed
+            in
+            { room | grid = Dict.insert ( endX, y ) (Tile.door ( endX, y )) room.grid }
+
+        West ->
+            let
+                ( y, _ ) =
+                    Random.step (Random.int (Tuple.first topLeft) (Tuple.first bottomLeft)) newSeed
+            in
+            { room | grid = Dict.insert ( startX, y ) (Tile.door ( startX, y )) room.grid }
+
+
+generateSeed : Room -> Random.Seed
+generateSeed room =
+    Random.initialSeed (Tuple.first room.start + Tuple.second room.start + Tuple.first room.end + Tuple.second room.end)
 
 
 {-| Your basic square style room

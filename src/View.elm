@@ -4,7 +4,7 @@ import Color exposing (randomRgb)
 import Html exposing (Html, aside, button, div, footer, h1, header, main_, p, span, text)
 import Html.Attributes exposing (attribute, class, classList, href, id, style, title)
 import Html.Events exposing (onClick)
-import Map.Board exposing (Cell, boardToList, generate, posToString)
+import Map.Board exposing (Cell, boardToList, posToString)
 import Map.Tile as Tile
 import Messages exposing (Msg(..))
 import Model exposing (Model)
