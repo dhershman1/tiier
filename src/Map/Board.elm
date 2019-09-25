@@ -187,7 +187,7 @@ buildBasicRoom start end width board =
         room =
             Room.basicRoom start end width [] (Room.create start end)
     in
-    { board | grid = Dict.union room.grid board.grid }
+    { board | grid = Dict.union room.grid board.grid, rooms = room :: board.rooms }
 
 
 drawPath : List Point -> Board -> Board
