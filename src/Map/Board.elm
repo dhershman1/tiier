@@ -35,6 +35,7 @@ type alias Board =
     { name : String
     , id : String
     , rooms : List Room
+    , floors : Int
     , grid : Dict Point Cell
     }
 
@@ -52,6 +53,7 @@ empty =
     { name = ""
     , id = ""
     , rooms = []
+    , floors = 0
     , grid = Dict.empty
     }
 
@@ -61,6 +63,7 @@ fakeBoard =
     { name = "Test Board"
     , id = "test123"
     , rooms = []
+    , floors = 1
     , grid = Dict.empty
     }
 
