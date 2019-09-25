@@ -244,13 +244,8 @@ connectRooms rooms lastCoord board =
         connectRooms rest coords nextBoard
 
 
-{-| Crawls through the dungeon building it out as it goes
+{-| Randomly place our start room on the map
 -}
-crawlBuild : Board -> Int -> Point -> Board
-crawlBuild board roomsLeft currPos =
-    fakeBoard
-
-
 placeStartRoom : Point -> Point -> Random.Seed -> Board -> Board
 placeStartRoom ( w1, w2 ) ( h1, h2 ) seed board =
     let

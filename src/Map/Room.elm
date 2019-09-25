@@ -46,7 +46,7 @@ create : Point -> Point -> Room
 create start end =
     { start = start
     , end = end
-    , entrence = ( 0, 0 )
+    , entrence = ( Tuple.first end + 1, Tuple.second end + 1 )
     , features = Dict.empty
     , grid = Dict.empty
     }
