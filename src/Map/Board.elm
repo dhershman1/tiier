@@ -1,11 +1,13 @@
-module Map.Board exposing (Board, Cell, boardToList, empty, generate, posToString)
+module Map.Board exposing (Board, empty, generate, posToString, toList)
 
 import AI.Pathfinding exposing (Position, planPath, pythagoreanCost, straightLineCost)
 import Debug exposing (log)
 import Dict exposing (Dict)
+import List.Extra as ListExtra
 import Map.Room as Room exposing (Room)
 import Map.Tile as Tile exposing (Tile)
 import Random
+import Random.List
 import Set exposing (Set)
 
 
@@ -22,21 +24,12 @@ type alias Point =
     ( Int, Int )
 
 
-type alias Cell =
-    { char : String
-    , cost : Float
-    , passable : Bool
-    , terrain : Tile
-    , pos : Point
-    }
-
-
 type alias Board =
     { name : String
     , id : String
-    , rooms : List Room
+    , rooms : Dict Int Room
     , floors : Int
-    , grid : Dict Point Cell
+    , grid : Dict Point Tile.Cell
     }
 
 
@@ -52,7 +45,7 @@ empty : Board
 empty =
     { name = ""
     , id = ""
-    , rooms = []
+    , rooms = Dict.empty
     , floors = 0
     , grid = Dict.empty
     }
@@ -62,7 +55,7 @@ fakeBoard : Board
 fakeBoard =
     { name = "Test Board"
     , id = "test123"
-    , rooms = []
+    , rooms = Dict.empty
     , floors = 1
     , grid = Dict.empty
     }
@@ -73,9 +66,21 @@ posToString ( x, y ) =
     String.fromInt x ++ ", " ++ String.fromInt y
 
 
-boardToList : Board -> List Cell
-boardToList { grid } =
+toList : Board -> List Tile.Cell
+toList { grid } =
     List.map Tuple.second (Dict.toList grid)
+
+
+pointMinMax : List Point -> Point -> ( Point, Point )
+pointMinMax points ( x, y ) =
+    let
+        xs =
+            List.map Tuple.first points
+
+        ys =
+            List.map Tuple.second points
+    in
+    ( ( Maybe.withDefault x (List.minimum xs), Maybe.withDefault x (List.maximum xs) ), ( Maybe.withDefault y (List.minimum ys), Maybe.withDefault y (List.maximum ys) ) )
 
 
 {-| Generate all of the floor cells to fill the board
@@ -108,7 +113,22 @@ generateRow x y board =
         nextBoard
 
 
-getCell : Point -> Board -> Cell
+placeExit : Random.Seed -> Board -> Board
+placeExit seed board =
+    let
+        room =
+            Maybe.withDefault Room.empty (Dict.get (Dict.size board.rooms - 2) board.rooms)
+
+        ( ( point, _ ), nextSeed ) =
+            log "point" <| Random.step (Random.List.choose (Room.pointsList room)) seed
+
+        safePoint =
+            Maybe.withDefault ( 0, 0 ) point
+    in
+    { board | grid = Dict.insert safePoint (Tile.stairsDown safePoint) board.grid }
+
+
+getCell : Point -> Board -> Tile.Cell
 getCell coords board =
     Maybe.withDefault (Tile.abyss coords) (Dict.get coords board.grid)
 
@@ -157,7 +177,7 @@ generateWallCells ( x, y ) board =
     let
         nextBoard =
             if placeWall ( x, y ) board then
-                { board | grid = Dict.insert ( x, y ) (Cell "#" (1 / 0) False Tile.Wall ( x, y )) board.grid }
+                { board | grid = Dict.insert ( x, y ) (Tile.wall ( x, y )) board.grid }
 
             else
                 board
@@ -184,13 +204,13 @@ buildWalls ( x, y ) board =
 
 {-| Builds out a basic square room from the top right corner to the bottom right corner and places it on the map
 -}
-buildBasicRoom : Point -> Point -> Int -> Board -> Board
-buildBasicRoom start end width board =
+buildBasicRoom : Point -> Point -> Int -> Board -> Int -> Board
+buildBasicRoom start end width board count =
     let
         room =
             Room.basicRoom start end width [] (Room.create start end)
     in
-    { board | grid = Dict.union room.grid board.grid, rooms = room :: board.rooms }
+    { board | grid = Dict.union room.grid board.grid, rooms = Dict.insert count room board.rooms }
 
 
 drawPath : List Point -> Board -> Board
@@ -263,7 +283,7 @@ placeStartRoom ( w1, w2 ) ( h1, h2 ) seed board =
                 seed
 
         nextBoard =
-            buildBasicRoom ( x - 1, y - 1 ) ( clamp 3 33 (x + width), clamp 3 48 (y + height) ) width board
+            buildBasicRoom ( x - 1, y - 1 ) ( clamp 3 33 (x + width), clamp 3 48 (y + height) ) width board 99
     in
     nextBoard
 
@@ -284,7 +304,7 @@ planRooms roomsLeft ( w1, w2 ) ( h1, h2 ) tilesList seed board =
                 seed
 
         nextBoard =
-            buildBasicRoom ( x - 1, y - 1 ) ( clamp 3 33 (x + width), clamp 3 48 (y + height) ) width board
+            buildBasicRoom ( x - 1, y - 1 ) ( clamp 3 33 (x + width), clamp 3 48 (y + height) ) width board roomsLeft
 
         currentRooms =
             List.append tilesList [ ( clamp 3 33 (x + width), clamp 3 48 (y + height) ) ]
@@ -364,3 +384,5 @@ generate rows cols seed =
         |> planRooms 15 ( 3, 6 ) ( 3, 6 ) [] seed
         -- Wrap the dungeon within walls
         |> buildWalls ( 34, 49 )
+        -- Place our dungeon exit
+        |> placeExit seed

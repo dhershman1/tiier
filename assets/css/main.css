@@ -68,3 +68,8 @@ header p {
   background-color: rgb(224, 90, 90);
   color: rgb(209, 248, 66)
 }
+
+.grid__cell--stairs {
+  background-color: rgba(231, 231, 5, 0.432);
+  color: rgb(255, 237, 137);
+}

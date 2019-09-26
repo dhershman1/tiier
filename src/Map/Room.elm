@@ -1,4 +1,4 @@
-module Map.Room exposing (Room, basicRoom, create, empty, polyRoom)
+module Map.Room exposing (Room, basicRoom, create, empty, pointsList, polyRoom, toList)
 
 import Debug exposing (log)
 import Dict exposing (Dict)
@@ -62,6 +62,21 @@ area { start, end } =
             end
     in
     ( ( startX, endX ), ( startY, endY ) )
+
+
+toList : Room -> List Tile.Cell
+toList { grid } =
+    List.map Tuple.second (Dict.toList grid)
+
+
+pointsList : Room -> List Point
+pointsList { grid } =
+    List.map Tuple.first (Dict.toList grid)
+
+
+updateCell : Room -> Point -> Tile.Cell -> Room
+updateCell room pos cell =
+    { room | grid = Dict.insert pos cell room.grid }
 
 
 {-| Your basic square style room

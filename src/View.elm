@@ -4,7 +4,7 @@ import Color exposing (randomRgb)
 import Html exposing (Html, aside, button, div, footer, h1, header, main_, p, span, text)
 import Html.Attributes exposing (attribute, class, classList, href, id, style, title)
 import Html.Events exposing (onClick)
-import Map.Board exposing (Cell, boardToList, posToString)
+import Map.Board as Board
 import Map.Tile as Tile
 import Messages exposing (Msg(..))
 import Model exposing (Model)
@@ -25,6 +25,9 @@ getColor terrain seed =
         "water" ->
             randomRgb ( 87, 121 ) ( 87, 121 ) ( 255, 255 ) seed
 
+        "stairs" ->
+            ( "rgba(236, 236, 0, 0.59)", Random.initialSeed 9 )
+
         "door" ->
             ( "rgb(248, 83, 97)", Random.initialSeed 10 )
 
@@ -32,14 +35,14 @@ getColor terrain seed =
             ( "rgb(0, 0, 0)", Random.initialSeed 12 )
 
 
-renderCell : List Cell -> Random.Seed -> List (Html Msg) -> List (Html Msg)
+renderCell : List Tile.Cell -> Random.Seed -> List (Html Msg) -> List (Html Msg)
 renderCell cells seed els =
     let
         rest =
             Maybe.withDefault [] (List.tail cells)
 
         current =
-            Maybe.withDefault (Cell "." 1 True (Tile.fromString "floor") ( 0, 0 )) (List.head cells)
+            Maybe.withDefault (Tile.floor ( 0, 0 )) (List.head cells)
 
         ( color, nextSeed ) =
             getColor (Tile.toString current.terrain) seed
@@ -51,14 +54,14 @@ renderCell cells seed els =
         renderCell rest
             nextSeed
             (List.append els
-                [ span [ class ("grid__cell grid__cell--" ++ Tile.toString current.terrain), style "background-color" color, title (posToString current.pos) ] [ text current.char ]
+                [ span [ class ("grid__cell grid__cell--" ++ Tile.toString current.terrain), style "background-color" color, title (Board.posToString current.pos) ] [ text current.char ]
                 ]
             )
 
 
 init : Model -> List (Html Msg)
 init { board } =
-    List.map (\c -> span [ class "grid__cell" ] [ text c.char ]) (boardToList board)
+    List.map (\c -> span [ class "grid__cell" ] [ text c.char ]) (Board.toList board)
 
 
 view : Model -> Html Msg
@@ -72,5 +75,5 @@ view model =
             [ span [ class "location" ] [ text "Location: " ]
             , span [] [ text "Nowhere" ]
             ]
-        , div [ class "grid" ] (renderCell (boardToList model.board) model.randomSeed [])
+        , div [ class "grid" ] (renderCell (Board.toList model.board) model.randomSeed [])
         ]
