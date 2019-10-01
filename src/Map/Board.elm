@@ -402,7 +402,7 @@ generate rows cols seed =
         -- Create a seed, board tuple for placeTile
         |> Tuple.pair seed
         -- These next two steps might be able to get combined into a single function
-        -- Place our dungeon exit
+        -- Place our floor exit
         |> placeExit
-        -- Place Dungeon Entrence
+        -- Place floor Entrance
         |> placeEntrance
