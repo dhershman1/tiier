@@ -1,6 +1,7 @@
 module View exposing (view)
 
 import Color exposing (randomRgb)
+import Debug exposing (log)
 import Html exposing (Html, aside, button, div, footer, h1, header, main_, p, span, text)
 import Html.Attributes exposing (attribute, class, classList, href, id, style, title)
 import Html.Events exposing (onClick)
@@ -35,8 +36,8 @@ getColor terrain seed =
             ( "rgb(0, 0, 0)", Random.initialSeed 12 )
 
 
-renderCell : List Tile.Cell -> Random.Seed -> List (Html Msg) -> List (Html Msg)
-renderCell cells seed els =
+renderCell : List Tile.Cell -> Int -> List (Html Msg) -> List (Html Msg)
+renderCell cells n els =
     let
         rest =
             Maybe.withDefault [] (List.tail cells)
@@ -45,14 +46,14 @@ renderCell cells seed els =
             Maybe.withDefault (Tile.floor ( 0, 0 )) (List.head cells)
 
         ( color, nextSeed ) =
-            getColor (Tile.toString current.terrain) seed
+            getColor (Tile.toString current.terrain) (Random.initialSeed n)
     in
     if List.length cells == 0 && List.isEmpty rest then
         els
 
     else
         renderCell rest
-            nextSeed
+            (n + 1)
             (List.append els
                 [ span [ class ("grid__cell grid__cell--" ++ Tile.toString current.terrain), style "background-color" color, title (Board.posToString current.pos) ] [ text current.char ]
                 ]
@@ -75,5 +76,5 @@ view model =
             [ span [ class "location" ] [ text "Location: " ]
             , span [] [ text model.board.name ]
             ]
-        , div [ class "grid" ] (renderCell (Board.toList model.board) model.randomSeed [])
+        , div [ class "grid" ] (renderCell (Board.toList model.board) model.initialInt [])
         ]
