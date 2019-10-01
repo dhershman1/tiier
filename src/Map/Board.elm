@@ -246,6 +246,8 @@ drawPath path board =
             board
 
 
+{-| This function should be more intelligent about finding a room right now it's pretty dumb about it
+-}
 findClosestRoom : List Point -> Point -> Point
 findClosestRoom rooms coords =
     List.foldr
