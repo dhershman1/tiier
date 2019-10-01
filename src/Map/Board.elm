@@ -17,7 +17,7 @@ TODO:
 
   - Add in the ability to Generate Water terrain within the map
   - Improve the closest room finder function
-  - Add setup to find a spot to place the Exit
+  - Add setup to find a spot to place the Entrence
 
 -}
 type alias Point =
@@ -113,8 +113,23 @@ generateRow x y board =
         nextBoard
 
 
-placeExit : Random.Seed -> Board -> Board
-placeExit seed board =
+placeEntrance : ( Random.Seed, Board ) -> Board
+placeEntrance ( seed, board ) =
+    let
+        room =
+            Maybe.withDefault Room.empty (Dict.get 0 board.rooms)
+
+        ( ( point, _ ), nextSeed ) =
+            log "point" <| Random.step (Random.List.choose (Room.pointsList room)) seed
+
+        safePoint =
+            Maybe.withDefault ( 0, 0 ) point
+    in
+    { board | grid = Dict.insert safePoint (Tile.stairsUp safePoint) board.grid }
+
+
+placeExit : ( Random.Seed, Board ) -> ( Random.Seed, Board )
+placeExit ( seed, board ) =
     let
         room =
             Maybe.withDefault Room.empty (Dict.get (Dict.size board.rooms - 2) board.rooms)
@@ -125,7 +140,7 @@ placeExit seed board =
         safePoint =
             Maybe.withDefault ( 0, 0 ) point
     in
-    { board | grid = Dict.insert safePoint (Tile.stairsDown safePoint) board.grid }
+    ( nextSeed, { board | grid = Dict.insert safePoint (Tile.stairsDown safePoint) board.grid } )
 
 
 getCell : Point -> Board -> Tile.Cell
@@ -384,5 +399,10 @@ generate rows cols seed =
         |> planRooms 15 ( 3, 6 ) ( 3, 6 ) [] seed
         -- Wrap the dungeon within walls
         |> buildWalls ( 34, 49 )
+        -- Create a seed, board tuple for placeTile
+        |> Tuple.pair seed
+        -- These next two steps might be able to get combined into a single function
         -- Place our dungeon exit
-        |> placeExit seed
+        |> placeExit
+        -- Place Dungeon Entrence
+        |> placeEntrance
