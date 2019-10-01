@@ -73,7 +73,7 @@ view model =
             ]
         , aside [ class "details" ]
             [ span [ class "location" ] [ text "Location: " ]
-            , span [] [ text "Nowhere" ]
+            , span [] [ text model.board.name ]
             ]
         , div [ class "grid" ] (renderCell (Board.toList model.board) model.randomSeed [])
         ]
