@@ -55,7 +55,7 @@ renderCell cells n els =
         renderCell rest
             (n + 1)
             (List.append els
-                [ span [ class ("grid__cell grid__cell--" ++ Tile.toString current.terrain), style "background-color" color, title (Board.posToString current.pos) ] [ text current.char ]
+                [ span [ class ("grid__cell sprite sprite--" ++ Tile.toString current.terrain), style "background-color" color, title (Board.posToString current.pos) ] []
                 ]
             )
 

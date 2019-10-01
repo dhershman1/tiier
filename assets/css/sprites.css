@@ -1,0 +1,12 @@
+.sprite {
+  width: 16px;
+  height: 16px;
+}
+
+.sprite--tree {
+  background: url(../imgs/colored.png) no-repeat 0 -17px;
+}
+
+.sprite--floor {
+  background: url(../imgs/colored.png) no-repeat -272px 0;
+}
