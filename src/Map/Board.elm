@@ -399,7 +399,7 @@ generate rows cols seed =
         |> planRooms 15 ( 3, 6 ) ( 3, 6 ) [] seed
         -- Wrap the dungeon within walls
         |> buildWalls ( 34, 49 )
-        -- Create a seed, board tuple for placeTile
+        -- Create a seed, board tuple for our exit and entrance placer
         |> Tuple.pair seed
         -- These next two steps might be able to get combined into a single function
         -- Place our floor exit
