@@ -1,6 +1,6 @@
 module Map.Board exposing (Board, empty, generate, moveCharacter, posToString, toList)
 
-import AI.Pathfinding exposing (Position, planPath, pythagoreanCost, straightLineCost)
+import AStar exposing (Position, findPath, straightLineCost)
 import Debug exposing (log)
 import Dict exposing (Dict)
 import List.Extra as ListExtra
@@ -22,6 +22,13 @@ TODO:
 -}
 type alias Point =
     ( Int, Int )
+
+
+type Entity
+    = Character
+    | Item
+    | Actor
+    | Trap
 
 
 type alias Board =
@@ -111,15 +118,6 @@ generateRow x y board =
 
     else
         nextBoard
-
-
-placeCharacter : ( Board, Point ) -> ( Board, Point )
-placeCharacter ( board, pos ) =
-    let
-        newPos =
-            ( Tuple.first pos - 1, Tuple.second pos )
-    in
-    ( { board | grid = Dict.insert newPos (Tile.character newPos) board.grid }, newPos )
 
 
 placeEntrance : ( Random.Seed, Board ) -> ( Board, Point )
@@ -281,7 +279,7 @@ connectRooms rooms lastCoord board =
             Maybe.withDefault [] (List.tail rooms)
 
         path =
-            Maybe.withDefault [] (planPath straightLineCost (movesFrom board) lastCoord (findClosestRoom rooms coords))
+            Maybe.withDefault [] (findPath straightLineCost (movesFrom board) lastCoord (findClosestRoom rooms coords))
 
         nextBoard =
             drawPath path board
@@ -436,5 +434,3 @@ generate rows cols seed =
         |> placeExit
         -- Place floor Entrance
         |> placeEntrance
-        -- Place our character by the entrence
-        |> placeCharacter
