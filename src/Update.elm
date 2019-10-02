@@ -23,14 +23,26 @@ saveToStorage model =
 moving : Model -> Model
 moving model =
     let
+        tmp =
+            log "pressed keys" model.pressedKeys
+
         arrows =
             Keyboard.Arrows.wasd model.pressedKeys
+
+        x =
+            log "arrows x" arrows.x
+
+        y =
+            log "arrows y" arrows.y
+
+        newPos =
+            ( Tuple.first model.position - arrows.y
+            , Tuple.second model.position + arrows.x
+            )
     in
     { model
-        | position =
-            ( Tuple.first model.position + arrows.x
-            , Tuple.second model.position + arrows.y
-            )
+        | board = Map.Board.moveCharacter model.board model.position newPos
+        , position = newPos
     }
 
 
@@ -75,31 +87,6 @@ update msg model =
         Tick _ ->
             ( model, Cmd.none )
 
-        LoadBoard now id ->
-            if Dict.member id model.loadedBoards then
-                let
-                    seed =
-                        Maybe.withDefault (Random.initialSeed 0) (Dict.get id model.loadedBoards)
-                in
-                ( { model
-                    | loadedBoards = Dict.insert id seed model.loadedBoards
-                    , board = Map.Board.generate 45 45 seed
-                  }
-                , Cmd.none
-                )
-
-            else
-                let
-                    seed =
-                        Random.initialSeed (Time.posixToMillis now)
-                in
-                ( { model
-                    | loadedBoards = Dict.insert id seed model.loadedBoards
-                    , board = Map.Board.generate 50 45 seed
-                  }
-                , Cmd.none
-                )
-
         InitRandom now ->
             let
                 time =
@@ -107,19 +94,25 @@ update msg model =
 
                 seed =
                     Random.initialSeed <| log "initial seed" <| time
+
+                ( board, pos ) =
+                    Map.Board.generate 50 95 seed
             in
             ( { model
                 | randomSeed = seed
                 , initialInt = time
-                , board = Map.Board.generate 50 95 seed
+                , board = board
+                , position = pos
               }
             , Cmd.none
             )
 
         KeyMsg key ->
-            ( { model | pressedKeys = Keyboard.update key model.pressedKeys }
-            , Cmd.none
-            )
+            let
+                newModel =
+                    { model | pressedKeys = Keyboard.update key model.pressedKeys }
+            in
+            ( moving newModel, Cmd.none )
 
         -- Tick time ->
         --     model

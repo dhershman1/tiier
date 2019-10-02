@@ -4,21 +4,21 @@
 }
 
 .sprite--tree {
-  background: url(../imgs/colored.png) no-repeat 0 -17px;
+  background: url(../imgs/roguelike.png) no-repeat 0 -17px;
 }
 
 .sprite--floor {
-  background: url(../imgs/colored.png) no-repeat -272px 0;
+  background: url(../imgs/roguelike.png) no-repeat -102px 0;
 }
 
 .sprite--stairs-up {
-  background: url(../imgs/colored.png) no-repeat -34px -102px;
+  background: url(../imgs/roguelike.png) no-repeat -579px -306px;
 }
 
 .sprite--stairs-down {
-  background: url(../imgs/colored.png) no-repeat -51px -102px;
+  background: url(../imgs/roguelike.png) no-repeat -629px -306px;
 }
 
 .sprite--character {
-  background: url(../imgs/colored.png) no-repeat -408px -102px;
+  background: url(../imgs/characters.png) no-repeat 0px -187px;
 }

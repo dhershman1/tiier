@@ -1,4 +1,4 @@
-module Map.Board exposing (Board, empty, generate, posToString, toList)
+module Map.Board exposing (Board, empty, generate, moveCharacter, posToString, toList)
 
 import AI.Pathfinding exposing (Position, planPath, pythagoreanCost, straightLineCost)
 import Debug exposing (log)
@@ -113,19 +113,28 @@ generateRow x y board =
         nextBoard
 
 
-placeEntrance : ( Random.Seed, Board ) -> Board
+placeCharacter : ( Board, Point ) -> ( Board, Point )
+placeCharacter ( board, pos ) =
+    let
+        newPos =
+            ( Tuple.first pos - 1, Tuple.second pos )
+    in
+    ( { board | grid = Dict.insert newPos (Tile.character newPos) board.grid }, newPos )
+
+
+placeEntrance : ( Random.Seed, Board ) -> ( Board, Point )
 placeEntrance ( seed, board ) =
     let
         room =
             Maybe.withDefault Room.empty (Dict.get 0 board.rooms)
 
         ( ( point, _ ), nextSeed ) =
-            log "point" <| Random.step (Random.List.choose (Room.pointsList room)) seed
+            Random.step (Random.List.choose (Room.pointsList room)) seed
 
         safePoint =
             Maybe.withDefault ( 0, 0 ) point
     in
-    { board | grid = Dict.insert safePoint (Tile.stairsUp safePoint) board.grid }
+    ( { board | grid = Dict.insert safePoint (Tile.stairsUp safePoint) board.grid }, safePoint )
 
 
 placeExit : ( Random.Seed, Board ) -> ( Random.Seed, Board )
@@ -135,7 +144,7 @@ placeExit ( seed, board ) =
             Maybe.withDefault Room.empty (Dict.get (Dict.size board.rooms - 2) board.rooms)
 
         ( ( point, _ ), nextSeed ) =
-            log "point" <| Random.step (Random.List.choose (Room.pointsList room)) seed
+            Random.step (Random.List.choose (Room.pointsList room)) seed
 
         safePoint =
             Maybe.withDefault ( 0, 0 ) point
@@ -389,9 +398,28 @@ lowestNeighbor board neighbors =
     { pos = pos, cost = cost }
 
 
+moveCharacter : Board -> Point -> Point -> Board
+moveCharacter board currCoords coords =
+    let
+        tmp =
+            log "coords" coords
+
+        toTile =
+            log "toTile" <| Maybe.withDefault (Tile.abyss coords) (Dict.get coords board.grid)
+
+        nextBoard =
+            { board | grid = Dict.insert currCoords (Tile.floor currCoords) board.grid }
+    in
+    if toTile.passable then
+        { nextBoard | grid = Dict.insert coords (Tile.character coords) board.grid }
+
+    else
+        board
+
+
 {-| The primary functionality that will plan out rooms for the board/map and build out based on the information provided
 -}
-generate : Int -> Int -> Random.Seed -> Board
+generate : Int -> Int -> Random.Seed -> ( Board, Point )
 generate rows cols seed =
     -- Build And Fill Map with blank tiles
     generateRow (rows - 1) (cols - 1) fakeBoard
@@ -408,3 +436,5 @@ generate rows cols seed =
         |> placeExit
         -- Place floor Entrance
         |> placeEntrance
+        -- Place our character by the entrence
+        |> placeCharacter

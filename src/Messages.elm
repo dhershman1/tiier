@@ -13,7 +13,6 @@ type Msg
     | Resume
     | Tick Float
     | InitRandom Posix
-    | LoadBoard Posix String
     | Resize Int Int
     | KeyMsg Keyboard.Msg
     | GetViewport Viewport
