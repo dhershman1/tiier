@@ -1,4 +1,4 @@
-module Map.Tile exposing (Cell, Tile(..), abyss, character, door, empty, floor, fromString, stairsDown, stairsUp, toString, wall, water)
+module Board.Tile exposing (Cell, Tile(..), abyss, character, door, empty, floor, fromString, stairsDown, stairsUp, toString, wall, water)
 
 
 type alias Point =

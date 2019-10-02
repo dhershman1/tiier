@@ -1,11 +1,11 @@
-module Map.Board exposing (Board, empty, generate, posToString, toList)
+module Board exposing (Board, empty, generate, posToString, toList)
 
 import AI.Pathfinding exposing (Position, planPath, pythagoreanCost, straightLineCost)
+import Board.Room as Room exposing (Room)
+import Board.Tile as Tile exposing (Tile)
 import Debug exposing (log)
 import Dict exposing (Dict)
 import List.Extra as ListExtra
-import Map.Room as Room exposing (Room)
-import Map.Tile as Tile exposing (Tile)
 import Random
 import Random.List
 import Set exposing (Set)

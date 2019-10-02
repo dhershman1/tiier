@@ -1,8 +1,8 @@
-module Map.Room exposing (Room, basicRoom, create, empty, pointsList, polyRoom, toList)
+module Board.Room exposing (Room, basicRoom, create, empty, pointsList, polyRoom, toList)
 
+import Board.Tile as Tile exposing (Tile)
 import Debug exposing (log)
 import Dict exposing (Dict)
-import Map.Tile as Tile exposing (Tile)
 import Random
 
 

@@ -1,10 +1,10 @@
 port module Update exposing (update)
 
+import Board exposing (Board)
 import Debug exposing (log)
 import Dict exposing (Dict)
 import Keyboard exposing (Key(..))
 import Keyboard.Arrows
-import Map.Board exposing (Board)
 import Messages exposing (..)
 import Model exposing (..)
 import Random
@@ -41,7 +41,7 @@ moving model =
             )
     in
     { model
-        | board = Map.Board.moveCharacter model.board model.position newPos
+        | board = Board.moveCharacter model.board model.position newPos
         , position = newPos
     }
 
@@ -96,7 +96,7 @@ update msg model =
                     Random.initialSeed <| log "initial seed" <| time
 
                 ( board, pos ) =
-                    Map.Board.generate 50 95 seed
+                    Board.generate 50 95 seed
             in
             ( { model
                 | randomSeed = seed

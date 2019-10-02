@@ -2,11 +2,11 @@ module Model exposing (Model, State(..), decode, decodeState, encode, encodeStat
 
 -- import Grid exposing (Grid)
 
+import Board exposing (Board)
 import Dict exposing (Dict)
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Keyboard exposing (Key(..))
-import Map.Board exposing (Board)
 import Messages exposing (Msg)
 import Random exposing (Generator, Seed)
 
@@ -102,7 +102,7 @@ initial =
     , initialInt = 0
     , randomSeed = Random.initialSeed 0
     , loadedBoards = Dict.empty
-    , board = Map.Board.empty
+    , board = Board.empty
     }
 
 

@@ -1,11 +1,11 @@
-module Map.Board exposing (Board, empty, generate, moveCharacter, posToString, toList)
+module Board exposing (Board, Entity, actorsList, empty, generate, moveCharacter, posToString, toList)
 
-import AStar exposing (Position, findPath, straightLineCost)
+import AStar exposing (Position, findPath, pythagoreanCost, straightLineCost)
+import Board.Room as Room exposing (Room)
+import Board.Tile as Tile exposing (Tile)
 import Debug exposing (log)
 import Dict exposing (Dict)
 import List.Extra as ListExtra
-import Map.Room as Room exposing (Room)
-import Map.Tile as Tile exposing (Tile)
 import Random
 import Random.List
 import Set exposing (Set)
@@ -28,7 +28,14 @@ type Entity
     = Character
     | Item
     | Actor
+    | Decoration
     | Trap
+
+
+type alias EntityInfo =
+    { name : String
+    , entity : Entity
+    }
 
 
 type alias Board =
@@ -37,6 +44,7 @@ type alias Board =
     , rooms : Dict Int Room
     , floors : Int
     , grid : Dict Point Tile.Cell
+    , actors : Dict Point (Maybe EntityInfo)
     }
 
 
@@ -55,6 +63,7 @@ empty =
     , rooms = Dict.empty
     , floors = 0
     , grid = Dict.empty
+    , actors = Dict.empty
     }
 
 
@@ -65,6 +74,7 @@ fakeBoard =
     , rooms = Dict.empty
     , floors = 1
     , grid = Dict.empty
+    , actors = Dict.empty
     }
 
 
@@ -76,6 +86,11 @@ posToString ( x, y ) =
 toList : Board -> List Tile.Cell
 toList { grid } =
     List.map Tuple.second (Dict.toList grid)
+
+
+actorsList : Board -> List (Maybe EntityInfo)
+actorsList { actors } =
+    List.map Tuple.second (Dict.toList actors)
 
 
 pointMinMax : List Point -> Point -> ( Point, Point )
@@ -96,7 +111,10 @@ generateCells : Int -> Int -> Board -> Board
 generateCells x y board =
     let
         nextBoard =
-            { board | grid = Dict.insert ( x, y ) (Tile.abyss ( x, y )) board.grid }
+            { board
+                | grid = Dict.insert ( x, y ) (Tile.abyss ( x, y )) board.grid
+                , actors = Dict.insert ( x, y ) Nothing board.actors
+            }
     in
     if x > 0 then
         generateCells (x - 1) y nextBoard
@@ -118,6 +136,15 @@ generateRow x y board =
 
     else
         nextBoard
+
+
+placePlayer : ( Board, Point ) -> Board
+placePlayer ( board, entrance ) =
+    let
+        newPos =
+            ( Tuple.first entrance, Tuple.second entrance - 1 )
+    in
+    { board | actors = Dict.insert newPos (Just { name = "Player", entity = Character }) board.actors }
 
 
 placeEntrance : ( Random.Seed, Board ) -> ( Board, Point )
@@ -279,7 +306,7 @@ connectRooms rooms lastCoord board =
             Maybe.withDefault [] (List.tail rooms)
 
         path =
-            Maybe.withDefault [] (findPath straightLineCost (movesFrom board) lastCoord (findClosestRoom rooms coords))
+            Maybe.withDefault [] (findPath straightLineCost movesFrom lastCoord (findClosestRoom rooms coords))
 
         nextBoard =
             drawPath path board
@@ -289,27 +316,6 @@ connectRooms rooms lastCoord board =
 
     else
         connectRooms rest coords nextBoard
-
-
-{-| Randomly place our start room on the map
--}
-placeStartRoom : Point -> Point -> Random.Seed -> Board -> Board
-placeStartRoom ( w1, w2 ) ( h1, h2 ) seed board =
-    let
-        ( { width, height, x, y }, nextSeed ) =
-            Random.step
-                (Random.map4 MapStats
-                    (Random.int w1 w2)
-                    (Random.int h1 h2)
-                    (Random.int 3 47)
-                    (Random.int 3 93)
-                )
-                seed
-
-        nextBoard =
-            buildBasicRoom ( x - 1, y - 1 ) ( clamp 3 47 (x + width), clamp 3 93 (y + height) ) width board 99
-    in
-    nextBoard
 
 
 {-| It's important to know that most of these hardcoded numbers will probably become dynamic since this will probably be all stored in a database
@@ -340,23 +346,14 @@ planRooms roomsLeft ( w1, w2 ) ( h1, h2 ) tilesList seed board =
         planRooms (roomsLeft - 1) ( w1, w2 ) ( h1, h2 ) currentRooms nextSeed nextBoard
 
 
-movesFrom : Board -> Position -> Set Position
-movesFrom world ( x, y ) =
-    let
-        results =
-            Set.empty
-    in
-    if x == 0 && y == 0 then
-        Set.union (Set.fromList [ ( 1, 0 ), ( 0, 1 ) ]) results
-
-    else if x == 0 then
-        Set.insert ( 1, y ) results
-
-    else if y == 0 then
-        Set.insert ( x, 1 ) results
-
-    else
-        Set.union (Set.fromList [ ( x + 1, y ), ( x, y + 1 ), ( x - 1, y ), ( x, y - 1 ) ]) results
+movesFrom : Position -> Set Position
+movesFrom ( x, y ) =
+    Set.fromList
+        [ ( x - 1, y )
+        , ( x + 1, y )
+        , ( x, y - 1 )
+        , ( x, y + 1 )
+        ]
 
 
 {-| Can be used for the Dijkstra Algorithm for path finding, hopefully. This should find the cheapest and passable neighbor for the algo to use.
@@ -421,10 +418,8 @@ generate : Int -> Int -> Random.Seed -> ( Board, Point )
 generate rows cols seed =
     -- Build And Fill Map with blank tiles
     generateRow (rows - 1) (cols - 1) fakeBoard
-        -- Build the starting room
-        |> placeStartRoom ( 3, 6 ) ( 3, 6 ) seed
         -- Build out the rest of the dungeon rooms
-        |> planRooms 25 ( 3, 6 ) ( 3, 6 ) [] seed
+        |> planRooms 25 ( 3, 7 ) ( 3, 7 ) [] seed
         -- Wrap the dungeon within walls
         |> buildWalls ( 49, 94 )
         -- Create a seed, board tuple for our exit and entrance placer

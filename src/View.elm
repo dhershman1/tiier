@@ -1,17 +1,24 @@
 module View exposing (view)
 
+import Board
+import Board.Entity exposing (Entity)
+import Board.Tile as Tile
 import Color exposing (randomRgb)
 import Debug exposing (log)
 import Html exposing (Html, aside, button, div, footer, h1, header, main_, p, span, text)
 import Html.Attributes exposing (attribute, class, classList, href, id, style, title)
 import Html.Events exposing (onClick)
-import Map.Board as Board
-import Map.Tile as Tile
 import Messages exposing (Msg(..))
 import Model exposing (Model)
 import Random
 import Task
 import Time
+
+
+type alias EntityInfo =
+    { name : String
+    , entity : Entity
+    }
 
 
 getColor : String -> Random.Seed -> ( String, Random.Seed )
@@ -34,6 +41,23 @@ getColor terrain seed =
 
         _ ->
             ( "rgb(0, 0, 0)", Random.initialSeed 12 )
+
+
+
+-- renderLayer : List (Maybe EntityInfo) -> List (Html Msg) -> List (Html Msg)
+-- renderLayer actors els =
+--     case actors of
+--         curr :: rest ->
+--             if curr then
+--                 renderLayer rest
+--                     (List.append els
+--                         [ span [ class ("grid__cell sprite sprite--" ++ Tile.toString current.terrain), style "background-color" color, title (Board.posToString current.pos) ] []
+--                         ]
+--                     )
+--             else
+--                 renderLayer rest els
+--         [] ->
+--             els
 
 
 renderCell : List Tile.Cell -> Int -> List (Html Msg) -> List (Html Msg)
@@ -76,5 +100,6 @@ view model =
             [ span [ class "location" ] [ text "Location: " ]
             , span [] [ text model.board.name ]
             ]
-        , div [ class "grid" ] (renderCell (Board.toList model.board) model.initialInt [])
+        , div [ class "grid", id "dungeon" ] (renderCell (Board.toList model.board) model.initialInt [])
+        , div [ class "grid", id "actors" ] []
         ]
