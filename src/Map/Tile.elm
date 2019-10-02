@@ -20,7 +20,8 @@ type Tile
     | Floor
     | Forest
     | Door
-    | Stairs
+    | StairsUp
+    | StairsDown
     | IronDoor
     | Abyss
 
@@ -37,12 +38,12 @@ wall pos =
 
 stairsUp : Point -> Cell
 stairsUp pos =
-    Cell "<" 1 True Stairs pos
+    Cell "<" 1 True StairsUp pos
 
 
 stairsDown : Point -> Cell
 stairsDown pos =
-    Cell ">" 1 True Stairs pos
+    Cell ">" 1 True StairsDown pos
 
 
 floor : Point -> Cell
@@ -72,8 +73,11 @@ fromString str =
         "floor" ->
             Floor
 
-        "stairs" ->
-            Stairs
+        "stairs-up" ->
+            StairsUp
+
+        "stairs-down" ->
+            StairsDown
 
         "forest" ->
             Forest
@@ -100,8 +104,11 @@ toString tile =
         Floor ->
             "floor"
 
-        Stairs ->
-            "stairs"
+        StairsUp ->
+            "stairs-up"
+
+        StairsDown ->
+            "stairs-down"
 
         Forest ->
             "forest"

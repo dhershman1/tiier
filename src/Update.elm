@@ -111,7 +111,7 @@ update msg model =
             ( { model
                 | randomSeed = seed
                 , initialInt = time
-                , board = Map.Board.generate 35 50 seed
+                , board = Map.Board.generate 50 95 seed
               }
             , Cmd.none
             )

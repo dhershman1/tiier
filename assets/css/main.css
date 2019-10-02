@@ -44,7 +44,7 @@ header p {
   grid-area: game;
   display: grid;
   /* grid-template-rows: repeat(28, 2%); */
-  grid-template-columns: repeat(50, 2%);
+  grid-template-columns: repeat(95, 16px);
 }
 
 .grid__cell {

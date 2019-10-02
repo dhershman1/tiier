@@ -10,3 +10,15 @@
 .sprite--floor {
   background: url(../imgs/colored.png) no-repeat -272px 0;
 }
+
+.sprite--stairs-up {
+  background: url(../imgs/colored.png) no-repeat -34px -102px;
+}
+
+.sprite--stairs-down {
+  background: url(../imgs/colored.png) no-repeat -51px -102px;
+}
+
+.sprite--character {
+  background: url(../imgs/colored.png) no-repeat -408px -102px;
+}

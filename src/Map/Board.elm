@@ -272,7 +272,7 @@ connectRooms rooms lastCoord board =
             Maybe.withDefault [] (List.tail rooms)
 
         path =
-            Maybe.withDefault [] (planPath pythagoreanCost (movesFrom board) lastCoord (findClosestRoom rooms coords))
+            Maybe.withDefault [] (planPath straightLineCost (movesFrom board) lastCoord (findClosestRoom rooms coords))
 
         nextBoard =
             drawPath path board
@@ -294,13 +294,13 @@ placeStartRoom ( w1, w2 ) ( h1, h2 ) seed board =
                 (Random.map4 MapStats
                     (Random.int w1 w2)
                     (Random.int h1 h2)
-                    (Random.int 3 33)
-                    (Random.int 3 48)
+                    (Random.int 3 47)
+                    (Random.int 3 93)
                 )
                 seed
 
         nextBoard =
-            buildBasicRoom ( x - 1, y - 1 ) ( clamp 3 33 (x + width), clamp 3 48 (y + height) ) width board 99
+            buildBasicRoom ( x - 1, y - 1 ) ( clamp 3 47 (x + width), clamp 3 93 (y + height) ) width board 99
     in
     nextBoard
 
@@ -315,16 +315,16 @@ planRooms roomsLeft ( w1, w2 ) ( h1, h2 ) tilesList seed board =
                 (Random.map4 MapStats
                     (Random.int w1 w2)
                     (Random.int h1 h2)
-                    (Random.int 3 33)
-                    (Random.int 3 48)
+                    (Random.int 3 47)
+                    (Random.int 3 93)
                 )
                 seed
 
         nextBoard =
-            buildBasicRoom ( x - 1, y - 1 ) ( clamp 3 33 (x + width), clamp 3 48 (y + height) ) width board roomsLeft
+            buildBasicRoom ( x - 1, y - 1 ) ( clamp 3 47 (x + width), clamp 3 93 (y + height) ) width board roomsLeft
 
         currentRooms =
-            List.append tilesList [ ( clamp 3 33 (x + width), clamp 3 48 (y + height) ) ]
+            List.append tilesList [ ( clamp 3 47 (x + width), clamp 3 93 (y + height) ) ]
     in
     if roomsLeft == 0 then
         connectRooms tilesList ( x - 1, y - 1 ) nextBoard
@@ -398,9 +398,9 @@ generate rows cols seed =
         -- Build the starting room
         |> placeStartRoom ( 3, 6 ) ( 3, 6 ) seed
         -- Build out the rest of the dungeon rooms
-        |> planRooms 15 ( 3, 6 ) ( 3, 6 ) [] seed
+        |> planRooms 25 ( 3, 6 ) ( 3, 6 ) [] seed
         -- Wrap the dungeon within walls
-        |> buildWalls ( 34, 49 )
+        |> buildWalls ( 49, 94 )
         -- Create a seed, board tuple for our exit and entrance placer
         |> Tuple.pair seed
         -- These next two steps might be able to get combined into a single function

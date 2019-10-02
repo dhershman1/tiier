@@ -40,3 +40,7 @@ Want to help? I am building Tiier purely as a side project for fun, and to have 
 - https://github.com/JoelQ/elm-conf-demo
 - https://github.com/ElmLive/random-maps
   - Not perfect but decent reference (also outdated)
+
+## Credit
+
+- Assets are from (KenneyNL)[https://twitter.com/KenneyNL]. (Check out the Site Here)[https://kenney.nl/]
