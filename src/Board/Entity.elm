@@ -7,6 +7,7 @@ type Entity
     | NPC
     | Decoration
     | Trap
+    | Empty
 
 
 type alias EntityStats =
@@ -33,6 +34,9 @@ toString entity =
         Trap ->
             "trap"
 
+        Empty ->
+            "empty"
+
 
 fromString : String -> Entity
 fromString str =
@@ -53,4 +57,4 @@ fromString str =
             Trap
 
         _ ->
-            Decoration
+            Empty

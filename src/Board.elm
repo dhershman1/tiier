@@ -1,6 +1,7 @@
-module Board exposing (Board, Entity, actorsList, empty, generate, moveCharacter, posToString, toList)
+module Board exposing (Board, actorsList, empty, generate, moveCharacter, posToString, toList)
 
 import AStar exposing (Position, findPath, pythagoreanCost, straightLineCost)
+import Board.Entity as Entity exposing (Entity, EntityStats)
 import Board.Room as Room exposing (Room)
 import Board.Tile as Tile exposing (Tile)
 import Debug exposing (log)
@@ -24,27 +25,13 @@ type alias Point =
     ( Int, Int )
 
 
-type Entity
-    = Character
-    | Item
-    | Actor
-    | Decoration
-    | Trap
-
-
-type alias EntityInfo =
-    { name : String
-    , entity : Entity
-    }
-
-
 type alias Board =
     { name : String
     , id : String
     , rooms : Dict Int Room
     , floors : Int
     , grid : Dict Point Tile.Cell
-    , actors : Dict Point (Maybe EntityInfo)
+    , actors : Dict Point (Maybe EntityStats)
     }
 
 
@@ -88,7 +75,7 @@ toList { grid } =
     List.map Tuple.second (Dict.toList grid)
 
 
-actorsList : Board -> List (Maybe EntityInfo)
+actorsList : Board -> List (Maybe EntityStats)
 actorsList { actors } =
     List.map Tuple.second (Dict.toList actors)
 
@@ -144,7 +131,7 @@ placePlayer ( board, entrance ) =
         newPos =
             ( Tuple.first entrance, Tuple.second entrance - 1 )
     in
-    { board | actors = Dict.insert newPos (Just { name = "Player", entity = Character }) board.actors }
+    { board | actors = Dict.insert newPos (Just { name = "Player", entity = Entity.fromString "character" }) board.actors }
 
 
 placeEntrance : ( Random.Seed, Board ) -> ( Board, Point )
