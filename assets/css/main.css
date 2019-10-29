@@ -43,17 +43,20 @@ header p {
 .grid {
   grid-area: game;
   display: grid;
+
   /* grid-template-rows: repeat(28, 2%); */
   grid-template-columns: repeat(95, 16px);
 }
 
 .grid__cell {
+  height: 16px;
+  width: 16px;
   -webkit-user-select: none; /* Chrome all / Safari all */
   -moz-user-select: none;   /* Firefox all */
   -ms-user-select: none;  /* IE 10+ */
   user-select: none;  /* Likely future */
   text-align: center;
-  line-height: 1.5rem;
+  align-self: center;
 }
 
 .grid__cell--abyss {
@@ -69,7 +72,8 @@ header p {
   color: rgb(209, 248, 66)
 }
 
-.grid__cell--stairs {
+.grid__cell--stairs-up,
+.grid__cell--stairs-down {
   background-color: rgba(231, 231, 5, 0.432);
   color: rgb(255, 237, 137);
 }

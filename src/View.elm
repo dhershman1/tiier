@@ -27,7 +27,10 @@ getColor terrain seed =
         "water" ->
             randomRgb ( 87, 121 ) ( 87, 121 ) ( 255, 255 ) seed
 
-        "stairs" ->
+        "stairs-down" ->
+            ( "rgba(236, 236, 0, 0.59)", Random.initialSeed 9 )
+
+        "stairs-up" ->
             ( "rgba(236, 236, 0, 0.59)", Random.initialSeed 9 )
 
         "door" ->
@@ -37,18 +40,14 @@ getColor terrain seed =
             ( "rgb(0, 0, 0)", Random.initialSeed 12 )
 
 
-renderLayer : List (Maybe Entity.EntityStats) -> List (Html Msg) -> List (Html Msg)
+renderLayer : List Entity.EntityDetails -> List (Html Msg) -> List (Html Msg)
 renderLayer actors els =
     case actors of
-        curr :: rest ->
-            let
-                current =
-                    Maybe.withDefault { name = "empty", entity = Entity.fromString "" } curr
-            in
+        current :: rest ->
             if current.entity /= Entity.fromString "" then
                 renderLayer rest
                     (List.append els
-                        [ span [ class ("grid__cell sprite sprite--" ++ Entity.toString current.entity) ] []
+                        [ span [ class ("grid__cell sprite sprite--" ++ Entity.toString current.entity) ] [ text current.char ]
                         ]
                     )
 
@@ -78,14 +77,14 @@ renderCell cells n els =
         renderCell rest
             (n + 1)
             (List.append els
-                [ span [ class ("grid__cell sprite sprite--" ++ Tile.toString current.terrain), style "background-color" color, title (Board.posToString current.pos) ] []
+                [ span [ class ("grid__cell grid__cell--" ++ Tile.toString current.terrain), style "background-color" color, title (Board.posToString current.pos) ] [ text current.char ]
                 ]
             )
 
 
 init : Model -> List (Html Msg)
 init { board } =
-    List.map (\c -> span [ class "grid__cell" ] [ text c.char ]) (Board.toList board)
+    List.map (\c -> span [ class ("grid__cell grid__cell--" ++ Tile.toString c.terrain) ] [ text c.char ]) (Board.toList board)
 
 
 view : Model -> Html Msg

@@ -1,8 +1,8 @@
-.sprite {
+/* .sprite {
   width: 16px;
   height: 16px;
-}
-
+} */
+/*
 .sprite--tree {
   background: url(../imgs/roguelike.png) no-repeat 0 -17px;
 }
@@ -18,7 +18,8 @@
 .sprite--stairs-down {
   background: url(../imgs/roguelike.png) no-repeat -629px -306px;
 }
-
+*/
 .sprite--character {
-  background: url(../imgs/characters.png) no-repeat 0px -187px;
+  color: rgb(255, 237, 137);
+  /* background: url(../imgs/characters.png) no-repeat 0px -187px; */
 }

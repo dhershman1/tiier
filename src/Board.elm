@@ -1,7 +1,7 @@
 module Board exposing (Board, actorsList, empty, generate, moveCharacter, posToString, toList)
 
 import AStar exposing (Position, findPath, pythagoreanCost, straightLineCost)
-import Board.Entity as Entity exposing (Entity, EntityStats)
+import Board.Entity as Entity exposing (Entity, EntityDetails)
 import Board.Room as Room exposing (Room)
 import Board.Tile as Tile exposing (Tile)
 import Debug exposing (log)
@@ -31,7 +31,7 @@ type alias Board =
     , rooms : Dict Int Room
     , floors : Int
     , grid : Dict Point Tile.Cell
-    , actors : Dict Point (Maybe EntityStats)
+    , actors : Dict Point EntityDetails
     }
 
 
@@ -75,7 +75,7 @@ toList { grid } =
     List.map Tuple.second (Dict.toList grid)
 
 
-actorsList : Board -> List (Maybe EntityStats)
+actorsList : Board -> List EntityDetails
 actorsList { actors } =
     List.map Tuple.second (Dict.toList actors)
 
@@ -100,7 +100,7 @@ generateCells x y board =
         nextBoard =
             { board
                 | grid = Dict.insert ( x, y ) (Tile.abyss ( x, y )) board.grid
-                , actors = Dict.insert ( x, y ) Nothing board.actors
+                , actors = Dict.insert ( x, y ) Entity.empty board.actors
             }
     in
     if x > 0 then
@@ -125,13 +125,16 @@ generateRow x y board =
         nextBoard
 
 
-placePlayer : ( Board, Point ) -> Board
+placePlayer : ( Board, Point ) -> ( Board, Point )
 placePlayer ( board, entrance ) =
     let
+        tmp =
+            log "entrance" entrance
+
         newPos =
             ( Tuple.first entrance, Tuple.second entrance - 1 )
     in
-    { board | actors = Dict.insert newPos (Just { name = "Player", entity = Entity.fromString "character" }) board.actors }
+    ( { board | actors = Dict.insert newPos { name = "Player", entity = Entity.fromString "character", char = "@" } board.actors }, newPos )
 
 
 placeEntrance : ( Random.Seed, Board ) -> ( Board, Point )
@@ -380,23 +383,9 @@ lowestNeighbor board neighbors =
     { pos = pos, cost = cost }
 
 
-moveCharacter : Board -> Point -> Point -> Board
-moveCharacter board currCoords coords =
-    let
-        tmp =
-            log "coords" coords
-
-        toTile =
-            log "toTile" <| Maybe.withDefault (Tile.abyss coords) (Dict.get coords board.grid)
-
-        nextBoard =
-            { board | grid = Dict.insert currCoords (Tile.floor currCoords) board.grid }
-    in
-    if toTile.passable then
-        { nextBoard | grid = Dict.insert coords (Tile.character coords) board.grid }
-
-    else
-        board
+moveCharacter : Board -> Point -> Point -> Entity.EntityDetails -> Board
+moveCharacter board currPos newPos player =
+    { board | actors = Dict.remove currPos board.actors |> Dict.insert newPos player }
 
 
 {-| The primary functionality that will plan out rooms for the board/map and build out based on the information provided
@@ -416,3 +405,4 @@ generate rows cols seed =
         |> placeExit
         -- Place floor Entrance
         |> placeEntrance
+        |> placePlayer

@@ -1,4 +1,4 @@
-module Board.Entity exposing (Entity, EntityStats, fromString, toString)
+module Board.Entity exposing (Entity, EntityDetails, empty, fromString, toString)
 
 
 type Entity
@@ -10,9 +10,10 @@ type Entity
     | Empty
 
 
-type alias EntityStats =
+type alias EntityDetails =
     { name : String
     , entity : Entity
+    , char : String
     }
 
 
@@ -58,3 +59,8 @@ fromString str =
 
         _ ->
             Empty
+
+
+empty : EntityDetails
+empty =
+    { name = "", entity = Empty, char = "" }

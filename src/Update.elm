@@ -1,6 +1,8 @@
 port module Update exposing (update)
 
 import Board exposing (Board)
+import Board.Entity as Entity
+import Board.Tile as Tile
 import Debug exposing (log)
 import Dict exposing (Dict)
 import Keyboard exposing (Key(..))
@@ -22,28 +24,54 @@ saveToStorage model =
 
 moving : Model -> Model
 moving model =
-    let
-        tmp =
-            log "pressed keys" model.pressedKeys
+    if List.isEmpty model.pressedKeys then
+        model
 
-        arrows =
-            Keyboard.Arrows.wasd model.pressedKeys
+    else
+        let
+            tmp =
+                log "pressed keys" <| model.pressedKeys
 
-        x =
-            log "arrows x" arrows.x
+            { x, y } =
+                log "arrows" <| Keyboard.Arrows.wasd model.pressedKeys
 
-        y =
-            log "arrows y" arrows.y
+            ( currX, currY ) =
+                model.position
 
-        newPos =
-            ( Tuple.first model.position - arrows.y
-            , Tuple.second model.position + arrows.x
-            )
-    in
-    { model
-        | board = Board.moveCharacter model.board model.position newPos
-        , position = newPos
-    }
+            newPos =
+                -- Up
+                if x == 0 && y == 1 then
+                    log "Up" ( currX - y, currY - x )
+                    -- Right
+
+                else if x == 1 && y == 0 then
+                    log "Right " ( currX + y, currY + x )
+                    -- Left
+
+                else if x == -1 && y == 0 then
+                    log "Left" ( currX + y, currY - x )
+                    -- Down
+
+                else
+                    log "Down" ( currX - y, currY + x )
+
+            currPos =
+                log "currPos" model.position
+
+            tile =
+                Maybe.withDefault (Tile.abyss newPos) (Dict.get newPos model.board.grid)
+
+            player =
+                log "player" <| Maybe.withDefault Entity.empty (Dict.get currPos model.board.actors)
+        in
+        if tile.passable then
+            { model
+                | board = Board.moveCharacter model.board currPos newPos player
+                , position = newPos
+            }
+
+        else
+            model
 
 
 getNewTime : Cmd Msg
