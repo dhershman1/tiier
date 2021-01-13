@@ -1,4 +1,4 @@
-module Tiier exposing (main)
+module Main exposing (main)
 
 import Browser
 import Browser.Dom exposing (Viewport, getViewport)

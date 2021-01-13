@@ -77,14 +77,14 @@ renderCell cells n els =
         renderCell rest
             (n + 1)
             (List.append els
-                [ span [ class ("grid__cell grid__cell--" ++ Tile.toString current.terrain), style "background-color" color, title (Board.posToString current.pos) ] [ text current.char ]
+                [ span [ class ("grid__cell grid__cell--" ++ Tile.toString current.terrain ++ " sprite sprite--" ++ Tile.toString current.terrain), style "background-color" color, title (Board.posToString current.pos) ] []
                 ]
             )
 
 
 init : Model -> List (Html Msg)
 init { board } =
-    List.map (\c -> span [ class ("grid__cell grid__cell--" ++ Tile.toString c.terrain) ] [ text c.char ]) (Board.toList board)
+    List.map (\c -> span [ class ("grid__cell grid__cell--" ++ Tile.toString c.terrain ++ " sprite sprite--" ++ Tile.toString c.terrain) ] []) (Board.toList board)
 
 
 view : Model -> Html Msg

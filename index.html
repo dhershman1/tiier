@@ -14,7 +14,7 @@
     <script>
       const initialState = localStorage.getItem('tiier')
 
-      const app = Elm.Tiier.init({
+      const app = Elm.Main.init({
         node: document.getElementById("app"),
         flags: initialState ? JSON.parse(initialState) : ''
       });
