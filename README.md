@@ -1,21 +1,19 @@
 # Tiier
 A game idea written in [Elm](https://elm-lang.org/)
 
+Well instead of a game this has sort of turned into more of a map generator experiment I was playing with?
+
 ## Influence/Credits
 
 - [Brogue](https://sites.google.com/site/broguegame/)
   - Brogue plays a huge influence in the stylization and choices behind the design to Tiier
 
-## Features (Wishlist)
+## How To
 
-- RPG style gameplay. Level up, train, learn different skills
-- No Class system
-  - In Tiier you don't choose to be an archer, mage, or warrior you start your character at a basic point and build from there. Will you lean towards a certain type? Maybe two? Heck maybe you will choose to be good at everything!
-- **Loot**
-  - I want to pay a good amount of time to the loot system within Tiier, different levels of loot, and lots of items to collect I always enjoyed games with good loot so I hope I can achieve this with Tiier
-- A fun world to explore
-  - Overall my goal is to make dungeons/maps use procedural generation to keep them interesting and make them replayable while you hunt for your glorious **Loot**
-- And many more!
+- Clone repo
+- `cd` into repo
+- Run `elm make --output=elm.js src/Main.elm`
+- Open the `index.html` file
 
 ## Contribution
 
